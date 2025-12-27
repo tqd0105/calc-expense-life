@@ -75,55 +75,5 @@ npm run dev
 5. Paste vào app → Click "Phân tích hóa đơn"
 6. Xem kết quả chia bill tự động!
 
-## 🗺️ Roadmap
-
-### ✅ Phase 1 (Hiện tại)
-- [x] Giao diện nhập JSON/HTML
-- [x] Parser cho Bách Hóa Xanh
-- [x] Parser cho KingFoodMart
-- [x] Tính toán chia bill
-- [x] LocalStorage để lưu lịch sử
-- [x] Chrome Extension (v1.0)
-
-### 🔜 Phase 2 (Tương lai)
-- [ ] Backend API với Express
-- [ ] Database PostgreSQL
-- [ ] Authentication
-- [ ] Multi-user support
-- [ ] Deploy lên cloud
-
-### 💡 Phase 3 (Tính năng nâng cao)
-- [ ] Chrome Extension v2.0 (auto sync)
-- [ ] Bookmarklet
-- [ ] Export PDF/Excel
-- [ ] Thống kê và biểu đồ
-- [ ] Mobile app
-
-## 🎯 Chrome Extension
-
-Extension tự động nhập hóa đơn vào app!
-
-**Cài đặt:**
-1. Vào `chrome://extensions/`
-2. Bật **Developer mode**
-3. Click **Load unpacked** → Chọn folder `extension/`
-4. ✅ Xong!
-
-**Sử dụng:**
-1. Mở trang hóa đơn BHX/KFM
-2. Click nút "Gửi lên Chia Bill"
-3. Hóa đơn tự động import!
-
-Chi tiết: [extension/README.md](extension/README.md)
-
-## 🛠️ Tech Stack
-
-- **Frontend**: React 18, TailwindCSS, Vite
-- **Parser**: Cheerio (HTML parsing)
-- **Storage**: LocalStorage (Phase 1)
-- **Backend**: Node.js + Express (Phase 2+)
-- **Database**: PostgreSQL (Phase 2+)
-
 ## 📝 License
 
-MIT
