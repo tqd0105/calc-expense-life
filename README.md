@@ -1,4 +1,4 @@
-# 💰 Chia Bill - Ứng dụng chia hóa đơn tự động
+# 💰 Chia Bill - Ứng dụng chia hóa đơn tự động (2 người)
 
 Ứng dụng web giúp tự động tính toán và chia đôi hóa đơn điện tử từ các trang thương mại điện tử Việt Nam (Bách Hóa Xanh, KingFoodMart).
 
@@ -9,6 +9,7 @@
 - 💾 Lưu lịch sử hóa đơn
 - 📊 Xem thống kê chi tiêu
 - 📱 Giao diện responsive, thân thiện
+- Chia bill đối với nhiều người (đang phát triển)
 
 ## 🏗️ Kiến trúc
 
