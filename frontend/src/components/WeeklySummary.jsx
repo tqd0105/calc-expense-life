@@ -113,10 +113,10 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
       </h2>
 
       {/* Filter Tabs */}
-      <div className="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
+      <div className="flex gap-1 sm:gap-2 mb-4 p-1 bg-gray-100 rounded-xl overflow-x-auto">
         <button
           onClick={() => setFilter('all')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+          className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
             filter === 'all' 
               ? 'bg-white text-indigo-700 shadow-md' 
               : 'text-gray-600 hover:bg-gray-200'
@@ -126,7 +126,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
         </button>
         <button
           onClick={() => setFilter('unpaid')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+          className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
             filter === 'unpaid' 
               ? 'bg-rose-500 text-white shadow-md' 
               : 'text-gray-600 hover:bg-gray-200'
@@ -136,7 +136,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
         </button>
         <button
           onClick={() => setFilter('paid')}
-          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+          className={`flex-1 py-1.5 sm:py-2 px-2 sm:px-4 rounded-lg text-xs sm:text-sm font-semibold transition-all whitespace-nowrap ${
             filter === 'paid' 
               ? 'bg-emerald-500 text-white shadow-md' 
               : 'text-gray-600 hover:bg-gray-200'
@@ -365,16 +365,16 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
       })()}
       </div>
 
-      <div className="mt-6 p-6 bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl border-2 border-slate-300 shadow-lg">
-        <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2">
+      <div className="mt-4 sm:mt-6 p-3 sm:p-6 bg-gradient-to-br from-slate-50 to-gray-100 rounded-xl sm:rounded-2xl border-2 border-slate-300 shadow-lg">
+        <h3 className="font-bold text-slate-800 mb-3 sm:mb-4 text-lg sm:text-xl flex items-center gap-2">
           <span>📊</span> Tổng kết tài chính
         </h3>
         
         {/* Tổng quan chính */}
-        <div className="grid grid-cols-3 gap-4 mb-4">
-          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border-2 border-emerald-300">
-            <div className="text-xs text-emerald-700 font-medium mb-1">✓ Đã thanh toán</div>
-            <div className="text-xl font-bold text-emerald-600">
+        <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-4">
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-2 sm:p-4 border-2 border-emerald-300">
+            <div className="text-xs text-emerald-700 font-medium mb-1">✓ Đã trả</div>
+            <div className="text-sm sm:text-xl font-bold text-emerald-600">
               {formatCurrency(weeklySummary.filter(w => w.isPaid).reduce((sum, week) => sum + week.total, 0))}
             </div>
             <div className="text-xs text-emerald-600 mt-1">
@@ -382,9 +382,9 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-4 border-2 border-rose-300">
-            <div className="text-xs text-rose-700 font-medium mb-1">⏳ Chưa thanh toán (Nợ)</div>
-            <div className="text-xl font-bold text-rose-600">
+          <div className="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-2 sm:p-4 border-2 border-rose-300">
+            <div className="text-xs text-rose-700 font-medium mb-1">⏳ Nợ</div>
+            <div className="text-sm sm:text-xl font-bold text-rose-600">
               {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0))}
             </div>
             <div className="text-xs text-rose-600 mt-1">
@@ -392,9 +392,9 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
             </div>
           </div>
           
-          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border-2 border-indigo-300">
-            <div className="text-xs text-indigo-700 font-medium mb-1">💰 Tổng chi tiêu</div>
-            <div className="text-xl font-bold text-indigo-600">
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-2 sm:p-4 border-2 border-indigo-300">
+            <div className="text-xs text-indigo-700 font-medium mb-1">💰 Tổng</div>
+            <div className="text-sm sm:text-xl font-bold text-indigo-600">
               {formatCurrency(weeklySummary.reduce((sum, week) => sum + week.total, 0))}
             </div>
             <div className="text-xs text-indigo-600 mt-1">
@@ -404,12 +404,12 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
         </div>
 
         {/* Highlight: Mỗi người phải trả */}
-        <div className="flex items-center justify-between mb-4 p-5 bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100 rounded-2xl border-4 border-amber-400 shadow-xl relative overflow-hidden">
+        <div className="flex items-center justify-between mb-4 p-3 sm:p-5 bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100 rounded-xl sm:rounded-2xl border-2 sm:border-4 border-amber-400 shadow-xl relative overflow-hidden">
           <div className=" z-10">
-            <div className="text-sm text-amber-800 font-bold mb-2 flex items-center gap-2">
-             <img src="/assets/icons/people.png" width="25" alt="Icon" /> MỖI NGƯỜI PHẢI TRẢ
+            <div className="text-xs sm:text-sm text-amber-800 font-bold mb-1 sm:mb-2 flex items-center gap-1 sm:gap-2">
+             <img src="/assets/icons/people.png" className="w-5 sm:w-6" alt="Icon" /> MỖI NGƯỜI PHẢI TRẢ
             </div>
-            <div className="text-4xl font-black text-amber-700 mb-1">
+            <div className="text-2xl sm:text-4xl font-black text-amber-700 mb-1">
               {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2)}
             </div>
             <div className="text-xs text-amber-600 font-medium">
@@ -419,7 +419,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
             </div>
             {/* VietQR Button */}
             {weeklySummary.filter(w => !w.isPaid).length > 0 && (
-              <div className="mt-3">
+              <div className="mt-2 sm:mt-3">
                 <VietQR 
                   amount={weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2}
                   description="Tien chi tieu chung"
@@ -427,21 +427,21 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
               </div>
             )}
           </div>
-          <div className=" text-6xl ">💰</div>
+          <div className="text-4xl sm:text-6xl">💰</div>
         </div>
 
         {/* Thống kê chi tiết */}
-        <div className="grid grid-cols-3 gap-3">
-          <div className="bg-white rounded-lg p-3 border border-slate-200">
-            <div className="text-xs text-gray-600 mb-1">TB/tuần (tổng)</div>
-            <div className="text-sm font-bold text-slate-700">
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          <div className="bg-white rounded-lg p-2 sm:p-3 border border-slate-200">
+            <div className="text-xs text-gray-600 mb-1">TB/tuần</div>
+            <div className="text-xs sm:text-sm font-bold text-slate-700">
               {formatCurrency(weeklySummary.reduce((sum, week) => sum + week.total, 0) / weeklySummary.length)}
             </div>
           </div>
           
-          <div className="bg-white rounded-lg p-3 border border-slate-200">
-            <div className="text-xs text-gray-600 mb-1">Tỷ lệ đã trả</div>
-            <div className="text-sm font-bold text-emerald-600">
+          <div className="bg-white rounded-lg p-2 sm:p-3 border border-slate-200">
+            <div className="text-xs text-gray-600 mb-1">Đã trả</div>
+            <div className="text-xs sm:text-sm font-bold text-emerald-600">
               {weeklySummary.length > 0 
                 ? Math.round((weeklySummary.filter(w => w.isPaid).length / weeklySummary.length) * 100) 
                 : 0}%

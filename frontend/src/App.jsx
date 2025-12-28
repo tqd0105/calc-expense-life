@@ -264,26 +264,26 @@ function App() {
             <div className="absolute top-0 right-0 w-64 h-64 bg-gradient-to-br from-cyan-400/20 to-transparent rounded-full blur-3xl"></div>
           </div> */}
           
-          <div className="relative max-w-7xl mx-auto px-6 py-8">
+          <div className="relative max-w-7xl mx-auto px-3 sm:px-6 py-4 sm:py-8">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 sm:gap-4">
                 {/* Logo/Icon */}
                 <div className="relative">
                   <div className="  rounded-2xl flex items-center justify-center  ">
-                    <img src="/assets/icons/ehomes.png" className="w-24 " alt="" />
+                    <img src="/assets/icons/ehomes.png" className="w-14 sm:w-24 " alt="" />
                   </div>
-                  <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
+                  <div className="absolute -top-1 -right-1 w-4 sm:w-5 h-4 sm:h-5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
                     <span className="text-xs">✓</span>
                   </div>
                 </div>
                 
                 <div>
-                  <h1 className="text-4xl font-black text-white tracking-tight drop-shadow-lg">
+                  <h1 className="text-xl sm:text-4xl font-black text-white tracking-tight drop-shadow-lg">
                     Quản lý chi tiêu
                   </h1>
-                  <div className="flex items-center gap-3 mt-2">
-                    <span className="text-white/90 font-semibold text-sm tracking-wide flex items-center gap-1">
-                      <img src="/assets/icons/buildings.png" className="w-6 rounded-lg shadow-md inline-block" alt="" />
+                  <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
+                    <span className="text-white/90 font-semibold text-xs sm:text-sm tracking-wide flex items-center gap-1">
+                      <img src="/assets/icons/buildings.png" className="w-4 sm:w-6 rounded-lg shadow-md inline-block" alt="" />
                        KMS Technology
                     </span>
                     {/* {isSupabaseEnabled() && (
@@ -296,26 +296,26 @@ function App() {
                 </div>
               </div>
               
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {/* Stats badges */}
-                <div className="hidden md:flex items-center gap-2">
-                  <div className="px-4 py-2 bg-white/15 backdrop-blur-sm rounded-xl border border-white/20 text-white flex items-center gap-2">
+                <div className="hidden sm:flex items-center gap-2">
+                  <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/15 backdrop-blur-sm rounded-xl border border-white/20 text-white flex items-center gap-2">
                     <span className="text-xs text-white/70 block">Hóa đơn</span>
-                    <span className="text-xl font-extrabold">{history.length}</span>
+                    <span className="text-lg sm:text-xl font-extrabold">{history.length}</span>
                   </div>
-                  <div className="px-4 py-2 bg-white/15 backdrop-blur-sm rounded-xl border border-white/20 text-white flex items-center gap-2">
+                  <div className="px-3 sm:px-4 py-1.5 sm:py-2 bg-white/15 backdrop-blur-sm rounded-xl border border-white/20 text-white flex items-center gap-2">
                     <span className="text-xs text-white/70 block">Tuần</span>
-                    <span className="text-xl font-extrabold">{weeks.length}</span>
+                    <span className="text-lg sm:text-xl font-extrabold">{weeks.length}</span>
                   </div>
                 </div>
                 
                 {isSupabaseEnabled() && user && (
                   <button
                     onClick={handleLogout}
-                    className="flex items-center gap-1 px-4 py-2 bg-white/20 hover:bg-white/30 text-white font-semibold rounded-xl backdrop-blur-sm border border-white/30 transition-all hover:scale-105 shadow-lg"
+                    className="flex items-center gap-1 px-2 sm:px-4 py-1.5 sm:py-2 bg-white/20 hover:bg-white/30 text-white text-sm sm:text-base font-semibold rounded-xl backdrop-blur-sm border border-white/30 transition-all hover:scale-105 shadow-lg"
                   >
-                    <img src="/assets/icons/logout.png" className="w-6 " alt="" />
-                     Đăng xuất
+                    <img src="/assets/icons/logout.png" className="w-5 sm:w-6 " alt="" />
+                    <span className="hidden sm:inline">Đăng xuất</span>
                   </button>
                 )}
               </div>
@@ -331,8 +331,8 @@ function App() {
         </header>
 
         {/* Main Content */}
-        <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="max-w-7xl mx-auto px-2 sm:px-6 py-4 sm:py-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 items-start">
           {/* Cột trái: Input - Sticky */}
           <div className="lg:sticky lg:top-6">
             <WeekManager 
@@ -369,13 +369,13 @@ function App() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t border-neutral-200 bg-white mt-12">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <p className="text-sm text-neutral-500 text-center">
-              💡 Ghi chú: Ứng dụng đang trong quá trình thử nghiệm. Có thể xảy ra sai sót không đáng có. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần thiết.
+        <footer className="border-t border-neutral-200 bg-white mt-8 sm:mt-12">
+          <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
+            <p className="text-xs sm:text-sm text-neutral-500 text-center">
+              💡 Ứng dụng đang thử nghiệm. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần.
             </p>
-            <p className="text-md text-neutral-600 text-center mt-2">
-              Copyright &copy; 2025. Made with ❤️ by <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>.
+            <p className="text-xs sm:text-md text-neutral-600 text-center mt-2">
+              © 2025 <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>
             </p>
           </div>
         </footer>

@@ -148,71 +148,76 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
           {weeks.map(week => (
             <div 
               key={week.id}
-              className={`flex justify-between items-center p-4 rounded-xl border-2 hover:shadow-lg hover:scale-[1.02] transition-all ${
+              className={`p-3 sm:p-4 rounded-xl border-2 hover:shadow-lg transition-all ${
                 week.isPaid 
                   ? 'bg-gradient-to-br from-emerald-100 via-teal-50 to-green-100 border-emerald-400' 
                   : 'bg-gradient-to-br from-rose-100 via-orange-50 to-red-100 border-rose-300'
               }`}
             >
-              <div>
-                <div className="flex items-center gap-2">
-                  <div className={`font-bold text-lg ${
-                    week.isPaid ? 'text-emerald-900' : 'text-rose-900'
-                  }`}>
-                    {week.name}
+              {/* Mobile: Stack layout */}
+              <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-3">
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <div className={`font-bold text-base sm:text-lg ${
+                      week.isPaid ? 'text-emerald-900' : 'text-rose-900'
+                    }`}>
+                      {week.name}
+                    </div>
+                    <span className={`text-xs px-2 py-0.5 rounded-full font-bold whitespace-nowrap ${
+                      week.isPaid 
+                        ? 'bg-emerald-200 text-emerald-800' 
+                        : 'bg-rose-200 text-rose-800'
+                    }`}>
+                      {week.isPaid ? '✓ Đã trả' : '⏳ Chưa trả'}
+                    </span>
                   </div>
-                  <span className={`text-xs px-2 py-1 rounded-full font-bold ${
-                    week.isPaid 
-                      ? 'bg-emerald-200 text-emerald-800' 
-                      : 'bg-rose-200 text-rose-800'
+                  <div className={`text-xs sm:text-sm font-medium mt-1 ${
+                    week.isPaid ? 'text-emerald-600' : 'text-rose-600'
                   }`}>
-                    {week.isPaid ? '✓ Đã trả' : '⏳ Chưa trả'}
-                  </span>
+                    {(() => {
+                      const start = new Date(week.startDate)
+                      const end = new Date(week.endDate)
+                      
+                      // Kiểm tra date hợp lệ
+                      if (isNaN(start.getTime()) || isNaN(end.getTime())) {
+                        return '⚠️ Ngày không hợp lệ'
+                      }
+                      
+                      return `${start.toLocaleDateString('vi-VN')} - ${end.toLocaleDateString('vi-VN')}`
+                    })()}
+                  </div>
                 </div>
-                <div className={`text-sm font-medium mt-1 ${
-                  week.isPaid ? 'text-emerald-600' : 'text-rose-600'
-                }`}>
-                  {(() => {
-                    const start = new Date(week.startDate)
-                    const end = new Date(week.endDate)
-                    
-                    // Kiểm tra date hợp lệ
-                    if (isNaN(start.getTime()) || isNaN(end.getTime())) {
-                      return '⚠️ Ngày không hợp lệ'
-                    }
-                    
-                    return `${start.toLocaleDateString('vi-VN')} - ${end.toLocaleDateString('vi-VN')}`
-                  })()}
+                
+                {/* Buttons - horizontal scroll on very small screens */}
+                <div className="flex gap-1.5 sm:gap-2 overflow-x-auto pb-1 sm:pb-0">
+                  <button
+                    onClick={() => handleTogglePaid(week)}
+                    className={`px-2 sm:px-3 py-1.5 sm:py-2 rounded-lg text-xs sm:text-sm font-medium shadow-sm hover:shadow transition-all whitespace-nowrap flex-shrink-0 ${
+                      week.isPaid
+                        ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                        : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                    }`}
+                    title={week.isPaid ? 'Đánh dấu chưa trả' : 'Đánh dấu đã trả'}
+                  >
+                    {week.isPaid ? '↩ Chưa' : '✓ Đã trả'}
+                  </button>
+                  <button
+                    onClick={() => handleEdit(week)}
+                    className="px-2 sm:px-3 py-1.5 sm:py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-xs sm:text-sm font-medium shadow-sm hover:shadow transition-all whitespace-nowrap flex-shrink-0"
+                  >
+                    Sửa
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (confirm(`Xóa tuần "${week.name}"?`)) {
+                        onDeleteWeek(week.id)
+                      }
+                    }}
+                    className="px-2 sm:px-3 py-1.5 sm:py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 text-xs sm:text-sm font-medium shadow-sm hover:shadow transition-all whitespace-nowrap flex-shrink-0"
+                  >
+                    Xóa
+                  </button>
                 </div>
-              </div>
-              <div className="flex gap-2">
-                <button
-                  onClick={() => handleTogglePaid(week)}
-                  className={`px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:shadow transition-all ${
-                    week.isPaid
-                      ? 'bg-orange-500 hover:bg-orange-600 text-white'
-                      : 'bg-emerald-500 hover:bg-emerald-600 text-white'
-                  }`}
-                  title={week.isPaid ? 'Đánh dấu chưa trả' : 'Đánh dấu đã trả'}
-                >
-                  {week.isPaid ? '↩ Chưa trả' : '✓ Đã trả'}
-                </button>
-                <button
-                  onClick={() => handleEdit(week)}
-                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium shadow-sm hover:shadow transition-all"
-                >
-                  Sửa
-                </button>
-                <button
-                  onClick={() => {
-                    if (confirm(`Xóa tuần "${week.name}"?`)) {
-                      onDeleteWeek(week.id)
-                    }
-                  }}
-                  className="px-4 py-2 bg-rose-500 text-white rounded-lg hover:bg-rose-600 text-sm font-medium shadow-sm hover:shadow transition-all"
-                >
-                  Xóa
-                </button>
               </div>
             </div>
           ))}
