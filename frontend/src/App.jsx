@@ -6,7 +6,6 @@ import AutoAPIFetcher from './components/AutoAPIFetcher'
 import WeeklySummary from './components/WeeklySummary'
 import WeekManager from './components/WeekManager'
 import Auth from './components/Auth'
-import IPGuard from './components/IPGuard'
 import { parseInvoiceHTML } from './utils/htmlParser'
 import { supabase, isSupabaseEnabled } from './lib/supabase'
 import { 
@@ -244,15 +243,11 @@ function App() {
 
   // Show auth page if Supabase enabled and not logged in
   if (isSupabaseEnabled() && !user) {
-    return (
-      <IPGuard>
-        <Auth onAuthSuccess={() => setUser(true)} />
-      </IPGuard>
-    )
+    return <Auth onAuthSuccess={() => setUser(true)} />
   }
 
   return (
-    <IPGuard>
+    <>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
         {/* Header */}
         <header className=" overflow-hidden bg-gray-600 shadow-xl">
@@ -380,8 +375,7 @@ function App() {
           </div>
         </footer>
       </div>
-      {/* </div> */}
-    </IPGuard>
+    </>
   )
 }
 
