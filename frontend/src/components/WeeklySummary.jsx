@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { updateInvoice } from '../utils/database'
+import VietQR from './VietQR'
 
 export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteInvoice }) {
   const [weeklySummary, setWeeklySummary] = useState([])
@@ -416,6 +417,15 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                 ? `Cho ${weeklySummary.filter(w => !w.isPaid).length} tuần chưa thanh toán`
                 : 'Đã thanh toán hết! 🎉'}
             </div>
+            {/* VietQR Button */}
+            {weeklySummary.filter(w => !w.isPaid).length > 0 && (
+              <div className="mt-3">
+                <VietQR 
+                  amount={weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2}
+                  description="Tien chi tieu chung"
+                />
+              </div>
+            )}
           </div>
           <div className=" text-6xl ">💰</div>
         </div>

@@ -79,11 +79,11 @@ export default function IPGuard({ children }) {
             <div className="text-left space-y-2.5 mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
               <p className="text-sm text-neutral-700 flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
-                <span>Đảm bảo bạn đã kết nối WiFi phòng</span>
+                <span>Đảm bảo bạn đã kết nối WiFi thiết lập ban đầu</span>
               </p>
               <p className="text-sm text-neutral-700 flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
-                <span>Tắt dữ liệu di động / 4G / 5G</span>
+                <span>Tắt dữ liệu di động (4G / 5G)</span>
               </p>
               <p className="text-sm text-neutral-700 flex items-start gap-2">
                 <span className="text-blue-600 mt-0.5">•</span>
@@ -98,11 +98,11 @@ export default function IPGuard({ children }) {
               Thử lại
             </button>
 
-            <div className="mt-6 p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
+            {/* <div className="mt-6 p-3 bg-neutral-50 border border-neutral-200 rounded-lg">
               <p className="text-xs text-neutral-600">
                 <strong className="text-neutral-900">Admin:</strong> Thêm <code className="bg-neutral-200 px-1.5 py-0.5 rounded text-xs">{clientIP}</code> vào <code className="bg-neutral-200 px-1.5 py-0.5 rounded text-xs">.env</code>
               </p>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>

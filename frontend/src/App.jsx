@@ -269,8 +269,8 @@ function App() {
               <div className="flex items-center gap-4">
                 {/* Logo/Icon */}
                 <div className="relative">
-                  <div className="  rounded-2xl flex items-center justify-center shadow-lg rounded-lg ">
-                    <img src="/assets/icons/ehomes.png" className="w-24 rounded-lg shadow-xl" alt="" />
+                  <div className="  rounded-2xl flex items-center justify-center  ">
+                    <img src="/assets/icons/ehomes.png" className="w-24 " alt="" />
                   </div>
                   <div className="absolute -top-1 -right-1 w-5 h-5 bg-green-400 rounded-full border-2 border-white flex items-center justify-center">
                     <span className="text-xs">✓</span>
@@ -279,12 +279,12 @@ function App() {
                 
                 <div>
                   <h1 className="text-4xl font-black text-white tracking-tight drop-shadow-lg">
-                    A904
+                    Quản lý chi tiêu
                   </h1>
                   <div className="flex items-center gap-3 mt-2">
                     <span className="text-white/90 font-semibold text-sm tracking-wide flex items-center gap-1">
                       <img src="/assets/icons/buildings.png" className="w-6 rounded-lg shadow-md inline-block" alt="" />
-                       CHUNG CƯ EHOMES
+                       KMS Technology
                     </span>
                     {/* {isSupabaseEnabled() && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-400/30 text-emerald-100 text-xs font-bold rounded-full backdrop-blur-sm border border-emerald-300/30">
@@ -375,7 +375,7 @@ function App() {
               💡 Ghi chú: Ứng dụng đang trong quá trình thử nghiệm. Có thể xảy ra sai sót không đáng có. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần thiết.
             </p>
             <p className="text-md text-neutral-600 text-center mt-2">
-              Copyright &copy; 2025. Made with ❤️ by <a href="#" className="text-indigo-600 font-semibold hover:underline ">Anonymous</a>.
+              Copyright &copy; 2025. Made with ❤️ by <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>.
             </p>
           </div>
         </footer>

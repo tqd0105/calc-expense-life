@@ -82,11 +82,11 @@ export default function Auth({ onAuthSuccess }) {
             </button>
           </form>
 
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+          {/* <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
             <p className="text-sm text-gray-700">
               <strong>💡 Lưu ý:</strong> Chỉ admin mới có thể tạo tài khoản. Liên hệ admin để được cấp quyền truy cập.
             </p>
-          </div>
+          </div> */}
         </div>
       </div>
     </div>
