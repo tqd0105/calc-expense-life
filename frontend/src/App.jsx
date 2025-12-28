@@ -205,6 +205,12 @@ function App() {
     }
   }
 
+  const handleEditInvoice = (invoice) => {
+    setCurrentInvoice(invoice)
+    // Scroll to top to see the result
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  }
+
   const handleDeleteInvoice = async (invoiceId) => {
     try {
       await dbDeleteInvoice(invoiceId)
@@ -249,7 +255,7 @@ function App() {
     <IPGuard>
       <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-indigo-50">
         {/* Header */}
-        <header className=" overflow-hidden bg-orange-700 shadow-xl">
+        <header className=" overflow-hidden bg-gray-600 shadow-xl">
           {/* Animated background shapes */}
           {/* <div className="absolute inset-0 overflow-hidden">
             <div className="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-2xl animate-pulse"></div>
@@ -280,12 +286,12 @@ function App() {
                       <img src="/assets/icons/buildings.png" className="w-6 rounded-lg shadow-md inline-block" alt="" />
                        CHUNG CƯ EHOMES
                     </span>
-                    {isSupabaseEnabled() && (
+                    {/* {isSupabaseEnabled() && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-400/30 text-emerald-100 text-xs font-bold rounded-full backdrop-blur-sm border border-emerald-300/30">
                         <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
                         Realtime Sync
                       </span>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>
@@ -317,18 +323,18 @@ function App() {
           </div>
           
           {/* Bottom wave decoration */}
-          <div className="absolute bottom-0 left-0 right-0">
+          {/* <div className="absolute bottom-0 left-0 right-0">
             <svg viewBox="0 0 1200 30" className="w-full h-8 fill-slate-50">
               <path d="M0,30 C300,10 600,25 900,10 C1050,5 1150,15 1200,10 L1200,30 Z"></path>
             </svg>
-          </div>
+          </div> */}
         </header>
 
         {/* Main Content */}
         <div className="max-w-7xl mx-auto px-6 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* Cột trái: Input */}
-          <div>
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+          {/* Cột trái: Input - Sticky */}
+          <div className="lg:sticky lg:top-6">
             <WeekManager 
               weeks={weeks}
               onSaveWeek={handleSaveWeek}
@@ -355,6 +361,7 @@ function App() {
             <WeeklySummary 
               history={history} 
               weeks={weeks}
+              onEditInvoice={handleEditInvoice}
               onDeleteInvoice={handleDeleteInvoice}
             />
           </div>
@@ -365,10 +372,10 @@ function App() {
         <footer className="border-t border-neutral-200 bg-white mt-12">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <p className="text-sm text-neutral-500 text-center">
-              💡 Ghi chú: Ứng dụng nhằm mục đích học tập. Có thể xảy ra sai sót không đáng có. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần thiết.
+              💡 Ghi chú: Ứng dụng đang trong quá trình thử nghiệm. Có thể xảy ra sai sót không đáng có. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần thiết.
             </p>
             <p className="text-md text-neutral-600 text-center mt-2">
-              Copyright &copy; 2025. Made with ❤️ by <a href="#" className="text-indigo-600 font-semibold hover:underline ">DT from UTH</a>.
+              Copyright &copy; 2025. Made with ❤️ by <a href="#" className="text-indigo-600 font-semibold hover:underline ">Anonymous</a>.
             </p>
           </div>
         </footer>

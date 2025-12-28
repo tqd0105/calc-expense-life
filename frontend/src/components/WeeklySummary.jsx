@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react'
+import { updateInvoice } from '../utils/database'
 
-export default function WeeklySummary({ history, weeks, onDeleteInvoice }) {
+export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteInvoice }) {
   const [weeklySummary, setWeeklySummary] = useState([])
   const [useCustomWeeks, setUseCustomWeeks] = useState(false)
+  const [selectedInvoice, setSelectedInvoice] = useState(null)
+  const [editingInvoice, setEditingInvoice] = useState(null)
+  const [editForm, setEditForm] = useState(null)
+  const [filter, setFilter] = useState('all') // 'all', 'unpaid', 'paid'
+  const [showAll, setShowAll] = useState(false)
+  const [expandedWeeks, setExpandedWeeks] = useState(new Set())
 
   useEffect(() => {
     // Only show weeks if custom weeks are defined
@@ -30,7 +37,8 @@ export default function WeeklySummary({ history, weeks, onDeleteInvoice }) {
         invoices: weekInvoices,
         total: weekInvoices.reduce((sum, inv) => sum + inv.total, 0),
         startDate: new Date(week.startDate),
-        id: week.id
+        id: week.id,
+        isPaid: week.isPaid || false
       }
     }).filter(week => week.invoices.length > 0) // Only show weeks with invoices
       .sort((a, b) => b.startDate - a.startDate) // Newest first
@@ -96,60 +104,171 @@ export default function WeeklySummary({ history, weeks, onDeleteInvoice }) {
   }
 
   return (
-    <div className="card border-l-4 border-l-orange-500 mt-4">
+    <>
+      <div className="card border-l-4 border-l-orange-500 mt-4">
       <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-4">
         Tổng hợp theo tuần
         <span className="text-sm font-semibold text-emerald-600 ml-3">(Tuần tùy chỉnh)</span>
       </h2>
-      
-      <div className="space-y-4">
-        {weeklySummary.map((week, index) => (
-          <div 
-            key={index} 
-            className="border-2 border-orange-300 rounded-2xl p-5 hover:shadow-xl transition-all bg-gradient-to-br from-orange-100 via-amber-50 to-yellow-100"
-          >
-            <div className="flex justify-between items-center mb-3">
-              <div>
-                <h3 className="text-xl font-bold text-orange-900">
-                  Tuần {week.weekRange}
-                </h3>
-                <p className="text-sm text-orange-600 font-medium mt-1">
-                  {week.invoices.length} đơn hàng
-                </p>
-              </div>
-              <div className="text-right">
-                <div className="text-3xl font-bold text-orange-600">
-                  {formatCurrency(week.total)}
-                </div>
-                <div className="text-sm text-orange-500 font-medium">Tổng cộng</div>
-              </div>
-            </div>
-            
-            <div className="border-t-2 border-orange-200 pt-4 mt-4">
-              <div className="grid grid-cols-2 gap-4">
-                <div className="bg-gradient-to-br from-emerald-100 to-teal-100 rounded-xl p-4 border-2 border-emerald-300">
-                  <div className="text-sm text-emerald-700 mb-1 font-medium">Mỗi người trả</div>
-                  <div className="text-2xl font-bold text-emerald-600">
-                    {formatCurrency(week.total / 2)}
-                  </div>
-                </div>
-                
-                <div className="bg-gradient-to-br from-cyan-100 to-blue-100 rounded-xl p-4 border-2 border-cyan-300">
-                  <div className="text-sm text-cyan-700 mb-1 font-medium">Trung bình/đơn</div>
-                  <div className="text-2xl font-bold text-cyan-600">
-                    {formatCurrency(week.total / week.invoices.length)}
-                  </div>
-                </div>
-              </div>
-            </div>
 
-            {/* Invoice list */}
-            <details className="mt-4">
-              <summary className="cursor-pointer text-sm text-indigo-600 hover:text-indigo-800 font-bold">
-                Xem chi tiết {week.invoices.length} đơn hàng
-              </summary>
-              <div className="mt-3 space-y-2">
-                {week.invoices.map((invoice, idx) => (
+      {/* Filter Tabs */}
+      <div className="flex gap-2 mb-4 p-1 bg-gray-100 rounded-xl">
+        <button
+          onClick={() => setFilter('all')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+            filter === 'all' 
+              ? 'bg-white text-indigo-700 shadow-md' 
+              : 'text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          📋 Tất cả ({weeklySummary.length})
+        </button>
+        <button
+          onClick={() => setFilter('unpaid')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+            filter === 'unpaid' 
+              ? 'bg-rose-500 text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          ⏳ Chưa trả ({weeklySummary.filter(w => !w.isPaid).length})
+        </button>
+        <button
+          onClick={() => setFilter('paid')}
+          className={`flex-1 py-2 px-4 rounded-lg text-sm font-semibold transition-all ${
+            filter === 'paid' 
+              ? 'bg-emerald-500 text-white shadow-md' 
+              : 'text-gray-600 hover:bg-gray-200'
+          }`}
+        >
+          ✓ Đã trả ({weeklySummary.filter(w => w.isPaid).length})
+        </button>
+      </div>
+
+      {/* Filtered weeks */}
+      {(() => {
+        const filteredWeeks = weeklySummary.filter(week => {
+          if (filter === 'unpaid') return !week.isPaid
+          if (filter === 'paid') return week.isPaid
+          return true
+        })
+        
+        const displayLimit = 2
+        const displayWeeks = showAll ? filteredWeeks : filteredWeeks.slice(0, displayLimit)
+        const hasMore = filteredWeeks.length > displayLimit
+
+        return (
+          <>
+            <div className="space-y-4">
+              {displayWeeks.map((week, index) => {
+                const isExpanded = expandedWeeks.has(week.id) || (!week.isPaid && filter !== 'paid')
+                
+                return (
+                  <div 
+                    key={index} 
+                    className={`border-2 rounded-2xl overflow-hidden transition-all ${
+                      week.isPaid
+                        ? 'bg-gradient-to-br from-emerald-100 via-teal-50 to-green-100 border-emerald-400'
+                        : 'bg-gradient-to-br from-rose-100 via-orange-50 to-red-100 border-rose-300'
+                    }`}
+                  >
+                    {/* Header - luôn hiện */}
+                    <div 
+                      className={`p-5 cursor-pointer hover:opacity-90 transition-opacity ${
+                        week.isPaid ? 'hover:bg-emerald-200/30' : 'hover:bg-rose-200/30'
+                      }`}
+                      onClick={() => {
+                        const newExpanded = new Set(expandedWeeks)
+                        if (newExpanded.has(week.id)) {
+                          newExpanded.delete(week.id)
+                        } else {
+                          newExpanded.add(week.id)
+                        }
+                        setExpandedWeeks(newExpanded)
+                      }}
+                    >
+                      <div className="flex justify-between items-center">
+                        <div className="flex items-center gap-3">
+                          <span className={`text-xl transition-transform ${isExpanded ? 'rotate-90' : ''}`}>
+                            ▶
+                          </span>
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <h3 className={`text-xl font-bold ${
+                                week.isPaid ? 'text-emerald-900' : 'text-rose-900'
+                              }`}>
+                                {week.weekRange}
+                              </h3>
+                              <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+                                week.isPaid 
+                                  ? 'bg-emerald-200 text-emerald-800' 
+                                  : 'bg-rose-200 text-rose-800'
+                              }`}>
+                                {week.isPaid ? '✓ Đã trả' : '⏳ Chưa trả'}
+                              </span>
+                            </div>
+                            <p className={`text-sm font-medium mt-1 ${
+                              week.isPaid ? 'text-emerald-600' : 'text-rose-600'
+                            }`}>
+                              {week.invoices.length} đơn • Mỗi người: {formatCurrency(week.total / 2)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="text-right">
+                          <div className={`text-2xl font-bold ${
+                            week.isPaid ? 'text-emerald-600' : 'text-rose-600'
+                          }`}>
+                            {formatCurrency(week.total)}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Content - ẩn/hiện */}
+                    {isExpanded && (
+                      <div className="px-5 pb-5 border-t-2 border-dashed border-opacity-50 ${
+                        week.isPaid ? 'border-emerald-300' : 'border-rose-300'
+                      }">
+                        <div className={`pt-4`}>
+                          <div className="grid grid-cols-2 gap-4 mb-4">
+                            <div className={`rounded-xl p-4 border-2 ${
+                              week.isPaid 
+                                ? 'bg-gradient-to-br from-teal-100 to-cyan-100 border-teal-300' 
+                                : 'bg-gradient-to-br from-orange-100 to-amber-100 border-orange-300'
+                            }`}>
+                              <div className={`text-sm mb-1 font-medium ${
+                                week.isPaid ? 'text-teal-700' : 'text-orange-700'
+                              }`}>Mỗi người trả</div>
+                              <div className={`text-2xl font-bold ${
+                                week.isPaid ? 'text-teal-600' : 'text-orange-600'
+                              }`}>
+                                {formatCurrency(week.total / 2)}
+                              </div>
+                            </div>
+                            
+                            <div className={`rounded-xl p-4 border-2 ${
+                              week.isPaid
+                                ? 'bg-gradient-to-br from-sky-100 to-blue-100 border-sky-300'
+                                : 'bg-gradient-to-br from-yellow-100 to-amber-100 border-yellow-300'
+                            }`}>
+                              <div className={`text-sm mb-1 font-medium ${
+                                week.isPaid ? 'text-sky-700' : 'text-yellow-700'
+                              }`}>Trung bình/đơn</div>
+                              <div className={`text-2xl font-bold ${
+                                week.isPaid ? 'text-sky-600' : 'text-yellow-600'
+                              }`}>
+                                {formatCurrency(week.total / week.invoices.length)}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Invoice list */}
+                          <details className="mt-2" open>
+                            <summary className="cursor-pointer text-sm text-indigo-600 hover:text-indigo-800 font-bold mb-2">
+                              Chi tiết {week.invoices.length} đơn hàng
+                            </summary>
+                            <div className="space-y-2">
+                              {week.invoices.map((invoice, idx) => (
                   <div 
                     key={idx}
                     className="flex justify-between items-center p-3 bg-white rounded-xl text-sm hover:shadow-md transition-all border-2 border-slate-200"
@@ -172,12 +291,37 @@ export default function WeeklySummary({ history, weeks, onDeleteInvoice }) {
                         </div>
                       </div>
                       <button
+                        onClick={() => setSelectedInvoice(invoice)}
+                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1 rounded-lg transition-colors font-medium"
+                        title="Xem chi tiết"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
+                          <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
+                        </svg>
+                      </button>
+                      <button
+                        onClick={() => {
+                          setEditingInvoice(invoice)
+                          setEditForm({
+                            ...invoice,
+                            items: invoice.items.map(item => ({ ...item }))
+                          })
+                        }}
+                        className="text-amber-500 hover:text-amber-700 hover:bg-amber-50 p-1 rounded-lg transition-colors font-medium"
+                        title="Chỉnh sửa đơn hàng"
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                          <path d="M13.586 3.586a2 2 0 112.828 2.828l-.793.793-2.828-2.828.793-.793zM11.379 5.793L3 14.172V17h2.828l8.38-8.379-2.83-2.828z" />
+                        </svg>
+                      </button>
+                      <button
                         onClick={() => {
                           if (confirm(`Xóa đơn hàng ${invoice.orderCode}?`)) {
                             onDeleteInvoice && onDeleteInvoice(invoice.id)
                           }
                         }}
-                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 rounded-lg transition-colors font-medium"
+                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded-lg transition-colors font-medium"
                         title="Xóa đơn hàng"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -189,33 +333,477 @@ export default function WeeklySummary({ history, weeks, onDeleteInvoice }) {
                 ))}
               </div>
             </details>
-          </div>
-        ))}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+
+            {/* Nút Xem thêm */}
+            {hasMore && !showAll && (
+              <button
+                onClick={() => setShowAll(true)}
+                className="w-full mt-4 py-3 bg-indigo-100 text-indigo-700 rounded-xl font-semibold hover:bg-indigo-200 transition-colors"
+              >
+                📜 Xem thêm {filteredWeeks.length - displayLimit} tuần khác...
+              </button>
+            )}
+            
+            {showAll && filteredWeeks.length > displayLimit && (
+              <button
+                onClick={() => setShowAll(false)}
+                className="w-full mt-4 py-3 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition-colors"
+              >
+                ↑ Thu gọn
+              </button>
+            )}
+          </>
+        )
+      })()}
       </div>
 
-      <div className="mt-6 p-4 bg-gradient-to-r from-purple-50 to-pink-50 rounded-lg border border-purple-200">
-        <h3 className="font-bold text-purple-800 mb-2">📊 Tổng tất cả</h3>
-        <div className="grid grid-cols-3 gap-4">
-          <div>
-            <div className="text-sm text-gray-600">Tổng chi tiêu</div>
-            <div className="text-lg font-bold text-purple-600">
+      <div className="mt-6 p-6 bg-gradient-to-br from-slate-50 to-gray-100 rounded-2xl border-2 border-slate-300 shadow-lg">
+        <h3 className="font-bold text-slate-800 mb-4 text-xl flex items-center gap-2">
+          <span>📊</span> Tổng kết tài chính
+        </h3>
+        
+        {/* Tổng quan chính */}
+        <div className="grid grid-cols-3 gap-4 mb-4">
+          <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 border-2 border-emerald-300">
+            <div className="text-xs text-emerald-700 font-medium mb-1">✓ Đã thanh toán</div>
+            <div className="text-xl font-bold text-emerald-600">
+              {formatCurrency(weeklySummary.filter(w => w.isPaid).reduce((sum, week) => sum + week.total, 0))}
+            </div>
+            <div className="text-xs text-emerald-600 mt-1">
+              {weeklySummary.filter(w => w.isPaid).length} tuần
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-rose-50 to-red-50 rounded-xl p-4 border-2 border-rose-300">
+            <div className="text-xs text-rose-700 font-medium mb-1">⏳ Chưa thanh toán (Nợ)</div>
+            <div className="text-xl font-bold text-rose-600">
+              {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0))}
+            </div>
+            <div className="text-xs text-rose-600 mt-1">
+              {weeklySummary.filter(w => !w.isPaid).length} tuần
+            </div>
+          </div>
+          
+          <div className="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-4 border-2 border-indigo-300">
+            <div className="text-xs text-indigo-700 font-medium mb-1">💰 Tổng chi tiêu</div>
+            <div className="text-xl font-bold text-indigo-600">
               {formatCurrency(weeklySummary.reduce((sum, week) => sum + week.total, 0))}
             </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600">Số tuần</div>
-            <div className="text-lg font-bold text-purple-600">
-              {weeklySummary.length}
-            </div>
-          </div>
-          <div>
-            <div className="text-sm text-gray-600">TB/tuần</div>
-            <div className="text-lg font-bold text-purple-600">
-              {formatCurrency(weeklySummary.reduce((sum, week) => sum + week.total, 0) / weeklySummary.length)}
+            <div className="text-xs text-indigo-600 mt-1">
+              {weeklySummary.length} tuần
             </div>
           </div>
         </div>
+
+        {/* Highlight: Mỗi người phải trả */}
+        <div className="flex items-center justify-between mb-4 p-5 bg-gradient-to-br from-amber-100 via-yellow-100 to-orange-100 rounded-2xl border-4 border-amber-400 shadow-xl relative overflow-hidden">
+          <div className=" z-10">
+            <div className="text-sm text-amber-800 font-bold mb-2 flex items-center gap-2">
+             <img src="/assets/icons/people.png" width="25" alt="Icon" /> MỖI NGƯỜI PHẢI TRẢ
+            </div>
+            <div className="text-4xl font-black text-amber-700 mb-1">
+              {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2)}
+            </div>
+            <div className="text-xs text-amber-600 font-medium">
+              {weeklySummary.filter(w => !w.isPaid).length > 0 
+                ? `Cho ${weeklySummary.filter(w => !w.isPaid).length} tuần chưa thanh toán`
+                : 'Đã thanh toán hết! 🎉'}
+            </div>
+          </div>
+          <div className=" text-6xl ">💰</div>
+        </div>
+
+        {/* Thống kê chi tiết */}
+        <div className="grid grid-cols-3 gap-3">
+          <div className="bg-white rounded-lg p-3 border border-slate-200">
+            <div className="text-xs text-gray-600 mb-1">TB/tuần (tổng)</div>
+            <div className="text-sm font-bold text-slate-700">
+              {formatCurrency(weeklySummary.reduce((sum, week) => sum + week.total, 0) / weeklySummary.length)}
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg p-3 border border-slate-200">
+            <div className="text-xs text-gray-600 mb-1">Tỷ lệ đã trả</div>
+            <div className="text-sm font-bold text-emerald-600">
+              {weeklySummary.length > 0 
+                ? Math.round((weeklySummary.filter(w => w.isPaid).length / weeklySummary.length) * 100) 
+                : 0}%
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg p-3 border border-slate-200">
+            <div className="text-xs text-gray-600 mb-1">Tổng đơn hàng</div>
+            <div className="text-sm font-bold text-slate-700">
+              {weeklySummary.reduce((sum, week) => sum + week.invoices.length, 0)} đơn
+            </div>
+          </div>
+        </div>
+
+        {/* Cảnh báo nợ nếu có */}
+        {weeklySummary.filter(w => !w.isPaid).length > 0 && (
+          <div className="mt-4 p-3 bg-rose-100 border-2 border-rose-300 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-rose-600 text-lg">⚠️</span>
+              <div>
+                <p className="text-sm font-bold text-rose-800">
+                  Còn {weeklySummary.filter(w => !w.isPaid).length} tuần chưa thanh toán
+                </p>
+                <p className="text-xs text-rose-600 mt-1">
+                  Mỗi người cần trả: {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2)}
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Thông báo hoàn thành nếu đã trả hết */}
+        {weeklySummary.length > 0 && weeklySummary.filter(w => !w.isPaid).length === 0 && (
+          <div className="mt-4 p-3 bg-emerald-100 border-2 border-emerald-300 rounded-lg">
+            <div className="flex items-center gap-2">
+              <span className="text-emerald-600 text-lg">✓</span>
+              <p className="text-sm font-bold text-emerald-800">
+                Tất cả các tuần đã được thanh toán! 🎉
+              </p>
+            </div>
+          </div>
+        )}
       </div>
-    </div>
+
+      {/* Modal chỉnh sửa đơn hàng */}
+      {editingInvoice && editForm && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setEditingInvoice(null)
+            setEditForm(null)
+          }}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#9ca3af #f3f4f6'
+            }}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-amber-600 to-orange-600 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">
+                    ✏️ Chỉnh sửa đơn hàng
+                  </h3>
+                  <p className="text-amber-100 text-sm">
+                    {editForm.orderCode}
+                  </p>
+                </div>
+                <button
+                  onClick={() => {
+                    setEditingInvoice(null)
+                    setEditForm(null)
+                  }}
+                  className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              {/* Thông tin cơ bản */}
+              <div className="mb-6">
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span>📝</span> Thông tin cơ bản
+                </h4>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Mã đơn hàng</label>
+                    <input
+                      type="text"
+                      value={editForm.orderCode || ''}
+                      onChange={(e) => setEditForm({ ...editForm, orderCode: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Cửa hàng</label>
+                    <input
+                      type="text"
+                      value={editForm.store || ''}
+                      onChange={(e) => setEditForm({ ...editForm, store: e.target.value })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-amber-500 focus:border-amber-500"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Danh sách sản phẩm */}
+              <div className="mb-6">
+                <h4 className="font-bold text-gray-800 mb-3 flex items-center gap-2">
+                  <span>🛒</span> Danh sách sản phẩm
+                </h4>
+                <div className="space-y-2 max-h-96 overflow-y-auto">
+                  {editForm.items.map((item, index) => (
+                    <div key={index} className="p-3 bg-gray-50 rounded-lg border border-gray-200">
+                      <div className="flex gap-2 items-start">
+                        <div className="flex-1 space-y-2">
+                          <input
+                            type="text"
+                            value={item.name}
+                            onChange={(e) => {
+                              const newItems = [...editForm.items]
+                              newItems[index].name = e.target.value
+                              setEditForm({ ...editForm, items: newItems })
+                            }}
+                            className="w-full px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                            placeholder="Tên sản phẩm"
+                          />
+                          <div className="flex gap-2">
+                            <input
+                              type="number"
+                              value={item.quantity || 1}
+                              onChange={(e) => {
+                                const newItems = [...editForm.items]
+                                newItems[index].quantity = parseInt(e.target.value) || 1
+                                newItems[index].price = (newItems[index].unitPrice || newItems[index].price) * (parseInt(e.target.value) || 1)
+                                setEditForm({ ...editForm, items: newItems })
+                              }}
+                              className="w-20 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                              placeholder="SL"
+                              min="1"
+                            />
+                            <input
+                              type="number"
+                              value={item.price}
+                              onChange={(e) => {
+                                const newItems = [...editForm.items]
+                                newItems[index].price = parseInt(e.target.value) || 0
+                                setEditForm({ ...editForm, items: newItems })
+                              }}
+                              className="flex-1 px-2 py-1 text-sm border border-gray-300 rounded focus:ring-1 focus:ring-amber-500 focus:border-amber-500"
+                              placeholder="Giá"
+                              min="0"
+                            />
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => {
+                            const newItems = editForm.items.filter((_, i) => i !== index)
+                            setEditForm({ ...editForm, items: newItems })
+                          }}
+                          className="text-rose-500 hover:text-rose-700 p-1"
+                          title="Xóa sản phẩm"
+                        >
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Nút thêm sản phẩm */}
+                <button
+                  onClick={() => {
+                    const newItems = [...editForm.items, { name: '', quantity: 1, price: 0 }]
+                    setEditForm({ ...editForm, items: newItems })
+                  }}
+                  className="mt-3 w-full py-2 bg-emerald-100 text-emerald-700 rounded-lg hover:bg-emerald-200 transition-colors font-medium text-sm"
+                >
+                  + Thêm sản phẩm
+                </button>
+              </div>
+
+              {/* Tổng tiền */}
+              <div className="p-4 bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl border-2 border-amber-300">
+                <div className="flex justify-between items-center">
+                  <span className="font-bold text-amber-900">Tổng cộng:</span>
+                  <span className="text-2xl font-bold text-amber-700">
+                    {formatCurrency(editForm.items.reduce((sum, item) => sum + (item.price || 0), 0))}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-gray-50 p-4 rounded-b-2xl border-t flex gap-3">
+              <button
+                onClick={() => {
+                  setEditingInvoice(null)
+                  setEditForm(null)
+                }}
+                className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={async () => {
+                  try {
+                    const updatedInvoice = {
+                      ...editingInvoice,
+                      orderCode: editForm.orderCode,
+                      store: editForm.store,
+                      items: editForm.items,
+                      total: editForm.items.reduce((sum, item) => sum + (item.price || 0), 0)
+                    }
+                    
+                    // Lưu vào database
+                    await updateInvoice(updatedInvoice.id, updatedInvoice)
+                    
+                    // Đóng modal
+                    setEditingInvoice(null)
+                    setEditForm(null)
+                    
+                    // Reload trang để cập nhật
+                    window.location.reload()
+                  } catch (error) {
+                    console.error('Lỗi khi lưu:', error)
+                    alert('Lỗi khi lưu đơn hàng: ' + error.message)
+                  }
+                }}
+                className="flex-1 py-3 bg-gradient-to-r from-amber-600 to-orange-600 text-white rounded-lg font-semibold hover:from-amber-700 hover:to-orange-700 transition-all shadow-lg"
+              >
+                💾 Lưu thay đổi
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal xem chi tiết hoá đơn */}
+      {selectedInvoice && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => setSelectedInvoice(null)}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto shadow-2xl scrollbar-thin scrollbar-thumb-gray-400 scrollbar-track-gray-100 hover:scrollbar-thumb-gray-500"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              scrollbarWidth: 'thin',
+              scrollbarColor: '#9ca3af #f3f4f6'
+            }}
+          >
+            {/* Header */}
+            <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl">
+              <div className="flex justify-between items-start">
+                <div>
+                  <h3 className="text-2xl font-bold mb-2">
+                    {selectedInvoice.orderCode}
+                  </h3>
+                  <p className="text-blue-100">
+                    {selectedInvoice.store}
+                  </p>
+                  <p className="text-sm text-blue-200 mt-1">
+                    {new Date(selectedInvoice.date || selectedInvoice.orderDate).toLocaleString('vi-VN')}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setSelectedInvoice(null)}
+                  className="text-white hover:bg-white hover:bg-opacity-20 rounded-full p-2 transition-colors"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              {/* Tổng tiền */}
+              <div className="bg-gradient-to-br from-emerald-50 to-teal-50 rounded-xl p-4 mb-6 border-2 border-emerald-200">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <p className="text-sm text-emerald-700 font-medium">Tổng cộng</p>
+                    <p className="text-3xl font-bold text-emerald-600">
+                      {formatCurrency(selectedInvoice.total)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className="text-sm text-teal-700 font-medium">Mỗi người trả</p>
+                    <p className="text-2xl font-bold text-teal-600">
+                      {formatCurrency(selectedInvoice.total / 2)}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              {/* Danh sách sản phẩm */}
+              {selectedInvoice.items && selectedInvoice.items.length > 0 && (
+                <div>
+                  <h4 className="text-lg font-bold text-gray-800 mb-4 flex items-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2 text-blue-600" viewBox="0 0 20 20" fill="currentColor">
+                      <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z" />
+                    </svg>
+                    Danh sách sản phẩm ({selectedInvoice.items.length})
+                  </h4>
+                  <div className="space-y-2">
+                    {selectedInvoice.items.map((item, idx) => (
+                      <div 
+                        key={idx}
+                        className="flex justify-between items-start p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border border-gray-200"
+                      >
+                        <div className="flex-1">
+                          <p className="font-semibold text-gray-800">
+                            {item.name}
+                          </p>
+                          {item.quantity && (
+                            <p className="text-sm text-gray-600 mt-1">
+                              Số lượng: {item.quantity}
+                            </p>
+                          )}
+                        </div>
+                        <div className="text-right ml-4">
+                          <p className="font-bold text-gray-900">
+                            {formatCurrency(item.price)}
+                          </p>
+                          {item.quantity && item.quantity > 1 && (
+                            <p className="text-xs text-gray-500 mt-1">
+                              {formatCurrency(item.price / item.quantity)}/sản phẩm
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Nếu không có items */}
+              {(!selectedInvoice.items || selectedInvoice.items.length === 0) && (
+                <div className="text-center py-8 text-gray-500">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-16 w-16 mx-auto mb-4 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                  <p className="font-medium">Không có thông tin chi tiết sản phẩm</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer */}
+            <div className="sticky bottom-0 bg-gray-50 p-4 rounded-b-2xl border-t">
+              <button
+                onClick={() => setSelectedInvoice(null)}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-3 rounded-lg font-semibold hover:from-blue-700 hover:to-indigo-700 transition-all shadow-lg"
+              >
+                Đóng
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </>
   )
 }

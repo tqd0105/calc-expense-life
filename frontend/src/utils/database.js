@@ -22,7 +22,8 @@ export async function getWeeks() {
     id: week.id,
     name: week.name,
     startDate: week.start_date,
-    endDate: week.end_date
+    endDate: week.end_date,
+    isPaid: week.is_paid || false
   }))
 }
 
@@ -44,6 +45,7 @@ export async function saveWeek(week) {
     name: week.name,
     start_date: week.startDate,
     end_date: week.endDate,
+    is_paid: week.isPaid || false,
     user_id: user.id
   }
 
@@ -60,7 +62,8 @@ export async function saveWeek(week) {
     id: data.id,
     name: data.name,
     startDate: data.start_date,
-    endDate: data.end_date
+    endDate: data.end_date,
+    isPaid: data.is_paid || false
   }
 }
 
@@ -161,8 +164,14 @@ export async function updateInvoice(invoiceId, updates) {
     return
   }
 
+  // Map frontend fields to database fields
   const dbUpdates = {}
   if (updates.weekId !== undefined) dbUpdates.week_id = updates.weekId
+  if (updates.orderCode !== undefined) dbUpdates.order_code = updates.orderCode
+  if (updates.store !== undefined) dbUpdates.store = updates.store
+  if (updates.total !== undefined) dbUpdates.total = updates.total
+  if (updates.items !== undefined) dbUpdates.items = updates.items
+  if (updates.date !== undefined) dbUpdates.date = updates.date
 
   const { error } = await supabase
     .from('invoices')

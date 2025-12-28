@@ -6,7 +6,8 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
   const [formData, setFormData] = useState({
     name: '',
     startDate: '',
-    endDate: ''
+    endDate: '',
+    isPaid: false
   })
 
   const handleSubmit = (e) => {
@@ -16,11 +17,12 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
       id: editingWeek ? editingWeek.id : Date.now(),
       name: formData.name,
       startDate: formData.startDate,
-      endDate: formData.endDate
+      endDate: formData.endDate,
+      isPaid: formData.isPaid || false
     }
     
     onSaveWeek(week)
-    setFormData({ name: '', startDate: '', endDate: '' })
+    setFormData({ name: '', startDate: '', endDate: '', isPaid: false })
     setEditingWeek(null)
     setShowForm(false)
   }
@@ -39,15 +41,24 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
     setFormData({
       name: week.name,
       startDate: formatDateForInput(week.startDate),
-      endDate: formatDateForInput(week.endDate)
+      endDate: formatDateForInput(week.endDate),
+      isPaid: week.isPaid || false
     })
     setShowForm(true)
   }
 
   const handleCancel = () => {
-    setFormData({ name: '', startDate: '', endDate: '' })
+    setFormData({ name: '', startDate: '', endDate: '', isPaid: false })
     setEditingWeek(null)
     setShowForm(false)
+  }
+
+  const handleTogglePaid = (week) => {
+    const updatedWeek = {
+      ...week,
+      isPaid: !week.isPaid
+    }
+    onSaveWeek(updatedWeek)
   }
 
   return (
@@ -137,11 +148,30 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
           {weeks.map(week => (
             <div 
               key={week.id}
-              className="flex justify-between items-center p-4 bg-gradient-to-br from-purple-100 via-purple-50 to-pink-100 rounded-xl border-2 border-purple-300 hover:shadow-lg hover:scale-[1.02] transition-all"
+              className={`flex justify-between items-center p-4 rounded-xl border-2 hover:shadow-lg hover:scale-[1.02] transition-all ${
+                week.isPaid 
+                  ? 'bg-gradient-to-br from-emerald-100 via-teal-50 to-green-100 border-emerald-400' 
+                  : 'bg-gradient-to-br from-rose-100 via-orange-50 to-red-100 border-rose-300'
+              }`}
             >
               <div>
-                <div className="font-bold text-purple-900 text-lg">{week.name}</div>
-                <div className="text-sm text-purple-600 font-medium mt-1">
+                <div className="flex items-center gap-2">
+                  <div className={`font-bold text-lg ${
+                    week.isPaid ? 'text-emerald-900' : 'text-rose-900'
+                  }`}>
+                    {week.name}
+                  </div>
+                  <span className={`text-xs px-2 py-1 rounded-full font-bold ${
+                    week.isPaid 
+                      ? 'bg-emerald-200 text-emerald-800' 
+                      : 'bg-rose-200 text-rose-800'
+                  }`}>
+                    {week.isPaid ? '✓ Đã trả' : '⏳ Chưa trả'}
+                  </span>
+                </div>
+                <div className={`text-sm font-medium mt-1 ${
+                  week.isPaid ? 'text-emerald-600' : 'text-rose-600'
+                }`}>
                   {(() => {
                     const start = new Date(week.startDate)
                     const end = new Date(week.endDate)
@@ -157,8 +187,19 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
               </div>
               <div className="flex gap-2">
                 <button
+                  onClick={() => handleTogglePaid(week)}
+                  className={`px-4 py-2 rounded-lg text-sm font-medium shadow-sm hover:shadow transition-all ${
+                    week.isPaid
+                      ? 'bg-orange-500 hover:bg-orange-600 text-white'
+                      : 'bg-emerald-500 hover:bg-emerald-600 text-white'
+                  }`}
+                  title={week.isPaid ? 'Đánh dấu chưa trả' : 'Đánh dấu đã trả'}
+                >
+                  {week.isPaid ? '↩ Chưa trả' : '✓ Đã trả'}
+                </button>
+                <button
                   onClick={() => handleEdit(week)}
-                  className="px-4 py-2 bg-teal-500 text-white rounded-lg hover:bg-teal-600 text-sm font-medium shadow-sm hover:shadow transition-all"
+                  className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 text-sm font-medium shadow-sm hover:shadow transition-all"
                 >
                   Sửa
                 </button>
