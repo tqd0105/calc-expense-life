@@ -31,7 +31,7 @@ export default function Auth({ onAuthSuccess }) {
       <div className="max-w-md w-full">
         <div className="text-center mb-8">
           <h1 className="text-3xl font-semibold text-neutral-900 tracking-tight mb-2">
-            Bill Splitter
+            Quản lý chi tiêu
           </h1>
           <p className="text-neutral-600">Đăng nhập để tiếp tục</p>
         </div>
