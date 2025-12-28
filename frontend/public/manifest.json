@@ -1,0 +1,27 @@
+{
+  "name": "Quản lý chi tiêu - KMS Technology",
+  "short_name": "Chi tiêu KMS",
+  "description": "Ứng dụng quản lý và chia sẻ chi tiêu chung",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#4b5563",
+  "theme_color": "#4b5563",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/assets/icons/money.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/icons/money.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["finance", "utilities"],
+  "lang": "vi",
+  "dir": "ltr"
+}

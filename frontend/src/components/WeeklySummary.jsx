@@ -2,6 +2,9 @@ import { useState, useEffect } from 'react'
 import { updateInvoice } from '../utils/database'
 import VietQR from './VietQR'
 
+// Storage key for number of people
+const PEOPLE_COUNT_KEY = 'expense_people_count'
+
 export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteInvoice }) {
   const [weeklySummary, setWeeklySummary] = useState([])
   const [useCustomWeeks, setUseCustomWeeks] = useState(false)
@@ -11,6 +14,16 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
   const [filter, setFilter] = useState('all') // 'all', 'unpaid', 'paid'
   const [showAll, setShowAll] = useState(false)
   const [expandedWeeks, setExpandedWeeks] = useState(new Set())
+  const [peopleCount, setPeopleCount] = useState(() => {
+    const saved = localStorage.getItem(PEOPLE_COUNT_KEY)
+    return saved ? parseInt(saved) : 2
+  })
+
+  // Save people count to localStorage
+  const handlePeopleCountChange = (count) => {
+    setPeopleCount(count)
+    localStorage.setItem(PEOPLE_COUNT_KEY, count.toString())
+  }
 
   useEffect(() => {
     // Only show weeks if custom weeks are defined
@@ -107,10 +120,32 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
   return (
     <>
       <div className="card border-l-4 border-l-orange-500 mt-4">
-      <h2 className="text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent mb-4">
-        Tổng hợp theo tuần
-        <span className="text-sm font-semibold text-emerald-600 ml-3">(Tuần tùy chỉnh)</span>
-      </h2>
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+        <h2 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-orange-600 to-amber-600 bg-clip-text text-transparent">
+          Tổng hợp theo tuần
+        </h2>
+        
+        {/* People Count Selector */}
+        <div className="flex items-center gap-2 bg-gradient-to-r from-violet-100 to-purple-100 px-3 py-2 rounded-xl border-2 border-violet-300">
+          <span className="text-xs sm:text-sm font-semibold text-violet-700">👥 Chia cho:</span>
+          <div className="flex gap-1">
+            {[2, 3, 4, 5].map(num => (
+              <button
+                key={num}
+                onClick={() => handlePeopleCountChange(num)}
+                className={`w-7 h-7 sm:w-8 sm:h-8 rounded-lg text-xs sm:text-sm font-bold transition-all ${
+                  peopleCount === num
+                    ? 'bg-violet-600 text-white shadow-md scale-110'
+                    : 'bg-white text-violet-600 hover:bg-violet-200'
+                }`}
+              >
+                {num}
+              </button>
+            ))}
+          </div>
+          <span className="text-xs text-violet-600">người</span>
+        </div>
+      </div>
 
       {/* Filter Tabs */}
       <div className="flex gap-1 sm:gap-2 mb-4 p-1 bg-gray-100 rounded-xl overflow-x-auto">
@@ -211,7 +246,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                             <p className={`text-sm font-medium mt-1 ${
                               week.isPaid ? 'text-emerald-600' : 'text-rose-600'
                             }`}>
-                              {week.invoices.length} đơn • Mỗi người: {formatCurrency(week.total / 2)}
+                              {week.invoices.length} đơn • Mỗi người: {formatCurrency(week.total / peopleCount)}
                             </p>
                           </div>
                         </div>
@@ -243,7 +278,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                               <div className={`text-2xl font-bold ${
                                 week.isPaid ? 'text-teal-600' : 'text-orange-600'
                               }`}>
-                                {formatCurrency(week.total / 2)}
+                                {formatCurrency(week.total / peopleCount)}
                               </div>
                             </div>
                             
@@ -288,7 +323,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                           {formatCurrency(invoice.total)}
                         </div>
                         <div className="text-xs text-emerald-600 font-semibold">
-                          ÷2 = {formatCurrency(invoice.total / 2)}
+                          ÷{peopleCount} = {formatCurrency(invoice.total / peopleCount)}
                         </div>
                       </div>
                       <button
@@ -410,7 +445,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
              <img src="/assets/icons/people.png" className="w-5 sm:w-6" alt="Icon" /> MỖI NGƯỜI PHẢI TRẢ
             </div>
             <div className="text-2xl sm:text-4xl font-black text-amber-700 mb-1">
-              {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2)}
+              {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / peopleCount)}
             </div>
             <div className="text-xs text-amber-600 font-medium">
               {weeklySummary.filter(w => !w.isPaid).length > 0 
@@ -421,7 +456,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
             {weeklySummary.filter(w => !w.isPaid).length > 0 && (
               <div className="mt-2 sm:mt-3">
                 <VietQR 
-                  amount={weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2}
+                  amount={weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / peopleCount}
                   description="Tien chi tieu chung"
                 />
               </div>
@@ -466,7 +501,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                   Còn {weeklySummary.filter(w => !w.isPaid).length} tuần chưa thanh toán
                 </p>
                 <p className="text-xs text-rose-600 mt-1">
-                  Mỗi người cần trả: {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / 2)}
+                  Mỗi người cần trả: {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / peopleCount)}
                 </p>
               </div>
             </div>
@@ -744,7 +779,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                   <div className="text-right">
                     <p className="text-sm text-teal-700 font-medium">Mỗi người trả</p>
                     <p className="text-2xl font-bold text-teal-600">
-                      {formatCurrency(selectedInvoice.total / 2)}
+                      {formatCurrency(selectedInvoice.total / peopleCount)}
                     </p>
                   </div>
                 </div>

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import InvoiceInput from './components/InvoiceInput'
+import CustomInvoiceInput from './components/CustomInvoiceInput'
 import InvoiceResult from './components/InvoiceResult'
 import InvoiceHistory from './components/InvoiceHistory'
 import AutoAPIFetcher from './components/AutoAPIFetcher'
@@ -336,6 +337,7 @@ function App() {
               onDeleteWeek={handleDeleteWeek}
             />
             <AutoAPIFetcher onInvoiceParsed={handleInvoiceParsed} />
+            <CustomInvoiceInput onInvoiceParsed={handleInvoiceParsed} />
             <InvoiceInput onInvoiceParsed={handleInvoiceParsed} />
             <InvoiceHistory 
               history={history} 

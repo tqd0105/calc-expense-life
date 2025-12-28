@@ -232,3 +232,106 @@ export function subscribeToInvoices(callback) {
     supabase.removeChannel(channel)
   }
 }
+
+// ============================================
+// PAYMENTS (Lịch sử thanh toán)
+// ============================================
+
+export async function getPayments() {
+  if (!isSupabaseEnabled()) {
+    const saved = localStorage.getItem('payments')
+    return saved ? JSON.parse(saved) : []
+  }
+
+  const { data, error } = await supabase
+    .from('payments')
+    .select('*')
+    .order('payment_date', { ascending: false })
+
+  if (error) throw error
+  
+  return (data || []).map(p => ({
+    id: p.id,
+    weekId: p.week_id,
+    payerName: p.payer_name,
+    amount: parseFloat(p.amount),
+    paymentDate: p.payment_date,
+    note: p.note,
+    createdAt: p.created_at
+  }))
+}
+
+export async function savePayment(payment) {
+  if (!isSupabaseEnabled()) {
+    const payments = JSON.parse(localStorage.getItem('payments') || '[]')
+    const newPayment = {
+      ...payment,
+      id: payment.id || Date.now(),
+      createdAt: new Date().toISOString()
+    }
+    payments.unshift(newPayment)
+    localStorage.setItem('payments', JSON.stringify(payments))
+    return newPayment
+  }
+
+  const { data: { user } } = await supabase.auth.getUser()
+  
+  const paymentData = {
+    week_id: payment.weekId || null,
+    payer_name: payment.payerName,
+    amount: payment.amount,
+    payment_date: payment.paymentDate || new Date().toISOString(),
+    note: payment.note || null,
+    user_id: user.id
+  }
+
+  const { data, error } = await supabase
+    .from('payments')
+    .insert(paymentData)
+    .select()
+    .single()
+
+  if (error) throw error
+  
+  return {
+    id: data.id,
+    weekId: data.week_id,
+    payerName: data.payer_name,
+    amount: parseFloat(data.amount),
+    paymentDate: data.payment_date,
+    note: data.note,
+    createdAt: data.created_at
+  }
+}
+
+export async function deletePayment(paymentId) {
+  if (!isSupabaseEnabled()) {
+    const payments = JSON.parse(localStorage.getItem('payments') || '[]')
+    const newPayments = payments.filter(p => p.id !== paymentId)
+    localStorage.setItem('payments', JSON.stringify(newPayments))
+    return
+  }
+
+  const { error } = await supabase
+    .from('payments')
+    .delete()
+    .eq('id', paymentId)
+
+  if (error) throw error
+}
+
+export function subscribeToPayments(callback) {
+  if (!isSupabaseEnabled()) return () => {}
+
+  const channel = supabase
+    .channel('payments-changes')
+    .on('postgres_changes', 
+      { event: '*', schema: 'public', table: 'payments' }, 
+      callback
+    )
+    .subscribe()
+
+  return () => {
+    supabase.removeChannel(channel)
+  }
+}
