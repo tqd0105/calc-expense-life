@@ -372,7 +372,7 @@ function App() {
               💡 Ứng dụng đang thử nghiệm. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần.
             </p>
             <p className="text-xs sm:text-md text-neutral-600 text-center mt-2">
-              © 2025 <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>
+              © 2025 - A product of  <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>
             </p>
           </div>
         </footer>
