@@ -1,53 +1,24 @@
 import { useState } from 'react'
 
-// Danh sách ngân hàng phổ biến với mã BIN
-const BANKS = [
-  { code: 'VCB', bin: '970436', name: 'Vietcombank' },
-  { code: 'TCB', bin: '970407', name: 'Techcombank' },
-  { code: 'MB', bin: '970422', name: 'MB Bank' },
-  { code: 'ACB', bin: '970416', name: 'ACB' },
-  { code: 'VPB', bin: '970432', name: 'VPBank' },
-  { code: 'TPB', bin: '970423', name: 'TPBank' },
-  { code: 'STB', bin: '970403', name: 'Sacombank' },
-  { code: 'BIDV', bin: '970418', name: 'BIDV' },
-  { code: 'VIB', bin: '970441', name: 'VIB' },
-  { code: 'SHB', bin: '970443', name: 'SHB' },
-  { code: 'MSB', bin: '970426', name: 'MSB' },
-  { code: 'OCB', bin: '970448', name: 'OCB' },
-]
-
-// Lưu cấu hình vào localStorage
-const STORAGE_KEY = 'vietqr_config'
+// Thông tin tài khoản cố định
+const FIXED_CONFIG = {
+  bankName: 'MSB',
+  bankBin: '970426',
+  accountNo: '6801112005',
+  accountName: 'TRAN QUANG DUNG'
+}
 
 export default function VietQR({ amount, description = '' }) {
   const [showModal, setShowModal] = useState(false)
-  const [config, setConfig] = useState(() => {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    return saved ? JSON.parse(saved) : {
-      bankCode: 'MB',
-      accountNo: '',
-      accountName: ''
-    }
-  })
-  const [showSetup, setShowSetup] = useState(false)
-
-  const saveConfig = (newConfig) => {
-    setConfig(newConfig)
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(newConfig))
-  }
-
-  const selectedBank = BANKS.find(b => b.code === config.bankCode)
 
   // Tạo URL QR VietQR
   const getQRUrl = () => {
-    if (!config.accountNo || !selectedBank) return null
-    
     const params = new URLSearchParams()
     params.set('amount', Math.round(amount))
     if (description) params.set('addInfo', description)
-    if (config.accountName) params.set('accountName', config.accountName)
+    params.set('accountName', FIXED_CONFIG.accountName)
     
-    return `https://img.vietqr.io/image/${selectedBank.bin}-${config.accountNo}-compact2.png?${params.toString()}`
+    return `https://img.vietqr.io/image/${FIXED_CONFIG.bankBin}-${FIXED_CONFIG.accountNo}-compact2.png?${params.toString()}`
   }
 
   const qrUrl = getQRUrl()
@@ -99,89 +70,28 @@ export default function VietQR({ amount, description = '' }) {
                 </p>
               </div>
 
-              {/* Setup toggle */}
-              {/* <button
-                onClick={() => setShowSetup(!showSetup)}
-                className="w-full text-sm text-blue-500 hover:text-blue-700 mb-4"
-              >
-                {showSetup ? '▲ Ẩn cấu hình' : '⚙️ Cấu hình tài khoản nhận'}
-              </button> */}
-
-              {/* Setup form */}
-              {showSetup && (
-                <div className="mb-4 p-4 bg-gray-50 rounded-xl space-y-3">
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Ngân hàng</label>
-                    <select
-                      value={config.bankCode}
-                      onChange={e => saveConfig({ ...config, bankCode: e.target.value })}
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    >
-                      {BANKS.map(bank => (
-                        <option key={bank.code} value={bank.code}>{bank.name}</option>
-                      ))}
-                    </select>
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Số tài khoản *</label>
-                    <input
-                      type="text"
-                      value={config.accountNo}
-                      onChange={e => saveConfig({ ...config, accountNo: e.target.value.replace(/\D/g, '') })}
-                      placeholder="VD: 0779461536"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Tên tài khoản</label>
-                    <input
-                      type="text"
-                      value={config.accountName}
-                      onChange={e => saveConfig({ ...config, accountName: e.target.value.toUpperCase() })}
-                      placeholder="VD: NGUYEN VAN A"
-                      className="w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500"
-                    />
-                  </div>
-                </div>
-              )}
-
               {/* QR Code */}
-              {qrUrl ? (
-                <div className="text-center">
-                  <div className="bg-white p-4 rounded-xl border-2 border-gray-200 inline-block">
-                    <img 
-                      src={qrUrl} 
-                      alt="VietQR" 
-                      className="w-64 h-64 mx-auto"
-                      onError={(e) => {
-                        e.target.onerror = null
-                        e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><text x="50%" y="50%" text-anchor="middle" fill="red">Lỗi tạo QR</text></svg>'
-                      }}
-                    />
-                  </div>
-                  <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
-                    <p className="font-semibold text-blue-800">{selectedBank?.name}</p>
-                    <p className="text-blue-700">STK: {config.accountNo}</p>
-                    {config.accountName && (
-                      <p className="text-blue-600">{config.accountName}</p>
-                    )}
-                  </div>
-                  <p className="text-xs text-gray-500 mt-3">
-                    Quét mã bằng app ngân hàng để chuyển khoản tự động
-                  </p>
+              <div className="text-center">
+                <div className="bg-white p-4 rounded-xl border-2 border-gray-200 inline-block">
+                  <img 
+                    src={qrUrl} 
+                    alt="VietQR" 
+                    className="w-64 h-64 mx-auto"
+                    onError={(e) => {
+                      e.target.onerror = null
+                      e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256"><text x="50%" y="50%" text-anchor="middle" fill="red">Lỗi tạo QR</text></svg>'
+                    }}
+                  />
                 </div>
-              ) : (
-                <div className="text-center py-8 text-gray-500">
-                  <p className="text-4xl mb-2">📱</p>
-                  <p>Vui lòng cấu hình số tài khoản để tạo mã QR</p>
-                  <button
-                    onClick={() => setShowSetup(true)}
-                    className="mt-3 text-blue-500 hover:text-blue-700 font-medium"
-                  >
-                    Cấu hình ngay →
-                  </button>
+                <div className="mt-4 p-3 bg-blue-50 rounded-lg text-sm">
+                  <p className="font-semibold text-blue-800">{FIXED_CONFIG.bankName}</p>
+                  <p className="text-blue-700">STK: {FIXED_CONFIG.accountNo}</p>
+                  <p className="text-blue-600">{FIXED_CONFIG.accountName}</p>
                 </div>
-              )}
+                <p className="text-xs text-gray-500 mt-3">
+                  Quét mã bằng app ngân hàng để chuyển khoản tự động
+                </p>
+              </div>
             </div>
 
             {/* Footer */}
