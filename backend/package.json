@@ -4,6 +4,7 @@
   "type": "module",
   "main": "src/server.js",
   "scripts": {
+    "build": "echo 'No build step needed for Node.js'",
     "dev": "nodemon src/server.js",
     "start": "node src/server.js"
   },
