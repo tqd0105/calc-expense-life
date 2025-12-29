@@ -369,7 +369,7 @@ function App() {
         <footer className="border-t border-neutral-200 bg-white mt-8 sm:mt-12">
           <div className="max-w-7xl mx-auto px-3 sm:px-6 py-3 sm:py-4">
             <p className="text-xs sm:text-sm text-neutral-500 text-center">
-              💡 Ứng dụng đang thử nghiệm. Vui lòng kiểm tra kỹ hóa đơn gốc khi cần.
+              💡 Ứng dụng đang thử nghiệm. Vui lòng kiểm tra kỹ hóa đơn gốc.
             </p>
             <p className="text-xs sm:text-md text-neutral-600 text-center mt-2">
               © 2025 - A product of  <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>

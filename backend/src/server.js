@@ -76,9 +76,9 @@ function checkIPWhitelist(req, res, next) {
 app.use(cors())
 app.use(express.json())
 
-// Apply IP whitelist to all routes (except health check for monitoring)
+// Apply IP whitelist to all routes (except health check and KFM proxy)
 app.use((req, res, next) => {
-  if (req.path === '/api/health') {
+  if (req.path === '/api/health' || req.path === '/api/proxy/kingfoodmart') {
     return next()
   }
   checkIPWhitelist(req, res, next)

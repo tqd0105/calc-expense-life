@@ -239,7 +239,7 @@ export default function AutoAPIFetcher({ onInvoiceParsed }) {
           >
             <img src="assets/icons/bhx.png" alt="Bách Hóa Xanh" className="inline-block rounded-full shadow-lg w-8 h-8 mr-2" />
 
-            Bách Hóa Xanh
+            BachHoaXanh
           </button>
           <button
             onClick={() => setStore('kingfoodmart')}
