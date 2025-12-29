@@ -78,10 +78,17 @@ app.use(express.json())
 
 // Apply IP whitelist to all routes (except health check and KFM proxy)
 app.use((req, res, next) => {
+  // TEMPORARILY DISABLE IP WHITELIST FOR DEBUGGING
+  console.log(`[${new Date().toISOString()}] Request from ${getClientIP(req)} to ${req.path}`);
+  return next();
+  
+  // Original IP check logic (commented out)
+  /*
   if (req.path === '/api/health' || req.path === '/api/proxy/kingfoodmart') {
     return next()
   }
   checkIPWhitelist(req, res, next)
+  */
 })
 
 // Routes
@@ -102,11 +109,16 @@ app.get('/api/check-access', (req, res) => {
 // CORS Proxy for KingFoodMart API
 app.post('/api/proxy/kingfoodmart', async (req, res) => {
   try {
+    console.log(`[${new Date().toISOString()}] KingFoodMart proxy request:`, JSON.stringify(req.body, null, 2));
+    
     const { orderCode, cookie } = req.body
     
     if (!orderCode) {
+      console.log('❌ Missing orderCode in request');
       return res.status(400).json({ error: 'orderCode is required' })
     }
+
+    console.log(`🔍 Fetching KFM data for order: ${orderCode}`);
 
     const graphqlQuery = `query EcomOrderDetail2($code: String!) {
   ecomOrderDetail2(code: $code) {
@@ -140,9 +152,13 @@ app.post('/api/proxy/kingfoodmart', async (req, res) => {
     
     // Add cookie if provided
     if (cookie && cookie.trim()) {
+      console.log(`🍪 Using cookie: ${cookie.substring(0, 50)}...`);
       headers['Cookie'] = cookie
+    } else {
+      console.log('⚠️ No cookie provided');
     }
 
+    console.log('📡 Making request to KFM API...');
     const response = await fetch('https://onelife-api.kingfoodmart.com/v1/gateway/', {
       method: 'POST',
       headers: headers,
@@ -153,14 +169,19 @@ app.post('/api/proxy/kingfoodmart', async (req, res) => {
       })
     })
 
+    console.log(`📡 KFM API Response status: ${response.status}`);
+
     if (!response.ok) {
+      const errorText = await response.text();
+      console.error(`❌ KFM API Error: ${response.status} - ${errorText}`);
       throw new Error(`KFM API Error: ${response.status}`)
     }
 
     const data = await response.json()
+    console.log(`✅ KFM API Success:`, JSON.stringify(data, null, 2));
     res.json(data)
   } catch (error) {
-    console.error('Proxy error:', error)
+    console.error('❌ Proxy error:', error)
     res.status(500).json({ error: error.message })
   }
 })
