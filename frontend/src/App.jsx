@@ -7,6 +7,7 @@ import AutoAPIFetcher from './components/AutoAPIFetcher'
 import WeeklySummary from './components/WeeklySummary'
 import WeekManager from './components/WeekManager'
 import Auth from './components/Auth'
+import Maintenance from './components/Maintenance'
 import { parseInvoiceHTML } from './utils/htmlParser'
 import { supabase, isSupabaseEnabled } from './lib/supabase'
 import { 
@@ -18,6 +19,11 @@ import {
 function App() {
   const [currentInvoice, setCurrentInvoice] = useState(null)
   const [history, setHistory] = useState([])
+  const [maintenanceMode, setMaintenanceMode] = useState(() => {
+    // Check localStorage for maintenance mode
+    const saved = localStorage.getItem('maintenance_mode')
+    return saved === 'true'
+  })
   const [weeks, setWeeks] = useState([])
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -240,6 +246,14 @@ function App() {
         <div className="text-white text-xl">⏳ Đang tải...</div>
       </div>
     )
+  }
+
+  // Show maintenance page if enabled
+  if (maintenanceMode) {
+    return <Maintenance onDisable={() => {
+      setMaintenanceMode(false)
+      localStorage.setItem('maintenance_mode', 'false')
+    }} />
   }
 
   // Show auth page if Supabase enabled and not logged in
