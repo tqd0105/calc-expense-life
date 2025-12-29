@@ -205,13 +205,13 @@ export default function AutoAPIFetcher({ onInvoiceParsed }) {
       {showPasswordModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 w-80 shadow-xl">
-            <h3 className="text-lg font-bold text-gray-800 mb-4">🔐 Nhập mật khẩu</h3>
+            <h3 className="text-lg font-bold text-gray-800 mb-4">🔐 Nhập mật khẩu cấu hình</h3>
             <input
               type="password"
               value={passwordInput}
               onChange={(e) => setPasswordInput(e.target.value)}
               onKeyPress={(e) => e.key === 'Enter' && handlePasswordSubmit()}
-              placeholder="Mật khẩu cấu hình..."
+              placeholder="Mã chứa: chữ + số"
               className="input-field w-full mb-3"
               autoFocus
             />
@@ -245,7 +245,7 @@ export default function AutoAPIFetcher({ onInvoiceParsed }) {
           onClick={handleConfigClick}
           className="text-sm text-blue-600 hover:text-blue-800 font-semibold"
         >
-          {showSetup ? '🔼 Ẩn' : (isUnlocked ? '⚙️ Cấu hình' : '🔒 Cấu hình')}
+          {showSetup ? '🔼 Ẩn' : (isUnlocked ? '⚙️ ' : '🔒 ')}
         </button>
       </div>
 
