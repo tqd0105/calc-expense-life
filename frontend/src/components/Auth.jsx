@@ -119,7 +119,7 @@ export default function Auth({ onAuthSuccess }) {
             rel="noopener noreferrer"
             className="text-white font-bold hover:underline"
           >
-            KMS Technology
+            LCV Technology
           </a>
           {' '}© 2025
         </p>

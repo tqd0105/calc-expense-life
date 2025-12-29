@@ -280,7 +280,7 @@ function App() {
                   <div className="flex items-center gap-2 sm:gap-3 mt-1 sm:mt-2">
                     <span className="text-white/90 font-semibold text-xs sm:text-sm tracking-wide flex items-center gap-1">
                       <img src="/assets/icons/buildings.png" className="w-4 sm:w-6 rounded-lg shadow-md inline-block" alt="" />
-                       KMS Technology
+                       LCV Technology
                     </span>
                     {/* {isSupabaseEnabled() && (
                       <span className="inline-flex items-center gap-1 px-2 py-1 bg-emerald-400/30 text-emerald-100 text-xs font-bold rounded-full backdrop-blur-sm border border-emerald-300/30">
@@ -372,7 +372,7 @@ function App() {
               💡 Ứng dụng đang thử nghiệm. Vui lòng kiểm tra kỹ hóa đơn gốc.
             </p>
             <p className="text-xs sm:text-md text-neutral-600 text-center mt-2">
-              © 2025 - A product of  <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">KMS Technology</a>
+              © 2025 - A product of  <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">LCV Technology</a>
             </p>
           </div>
         </footer>

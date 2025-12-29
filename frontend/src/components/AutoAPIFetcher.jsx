@@ -281,7 +281,7 @@ export default function AutoAPIFetcher({ onInvoiceParsed }) {
       {showSetup && (
         <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h3 className="font-bold text-gray-800 mb-3">
-            ⚙️ Cấu hình {store === 'bachhoaxanh' ? 'Bách Hóa Xanh' : 'KingFoodMart'}
+            ⚙️ {store === 'bachhoaxanh' ? 'Bách Hóa Xanh' : 'KingFoodMart'}
           </h3>
 
           {store === 'bachhoaxanh' ? (
