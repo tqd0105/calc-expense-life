@@ -114,7 +114,7 @@ export default function Auth({ onAuthSuccess }) {
         <p className="text-white/80 text-xs">
           Powered by{' '}
           <a 
-            href="https://kms-technology.com" 
+            href="" 
             target="_blank" 
             rel="noopener noreferrer"
             className="text-white font-bold hover:underline"

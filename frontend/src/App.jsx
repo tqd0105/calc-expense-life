@@ -17,13 +17,14 @@ import {
 } from './utils/database'
 
 function App() {
+  // 🚨 MAINTENANCE MODE CONTROL 🚨
+  // Set to true when you need to show maintenance page
+  // Deploy this version when there's an issue
+  const MAINTENANCE_MODE = false // Change to 'true' and deploy when needed
+  
   const [currentInvoice, setCurrentInvoice] = useState(null)
   const [history, setHistory] = useState([])
-  const [maintenanceMode, setMaintenanceMode] = useState(() => {
-    // Check localStorage for maintenance mode
-    const saved = localStorage.getItem('maintenance_mode')
-    return saved === 'true'
-  })
+  const [maintenanceMode, setMaintenanceMode] = useState(MAINTENANCE_MODE)
   const [weeks, setWeeks] = useState([])
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(true)
@@ -250,10 +251,7 @@ function App() {
 
   // Show maintenance page if enabled
   if (maintenanceMode) {
-    return <Maintenance onDisable={() => {
-      setMaintenanceMode(false)
-      localStorage.setItem('maintenance_mode', 'false')
-    }} />
+    return <Maintenance />
   }
 
   // Show auth page if Supabase enabled and not logged in
@@ -386,7 +384,7 @@ function App() {
               💡 Ứng dụng đang thử nghiệm. Vui lòng kiểm tra kỹ hóa đơn gốc.
             </p>
             <p className="text-xs sm:text-md text-neutral-600 text-center mt-2">
-              © 2025 - A product of  <a href="https://kms-technology.com/" target='_blank' className="text-indigo-600 font-semibold hover:underline ">LCV Technology</a>
+              © 2025 - A product of  <a href="" target='_blank' className="text-indigo-600 font-semibold hover:underline ">LCV Technology</a>
             </p>
           </div>
         </footer>

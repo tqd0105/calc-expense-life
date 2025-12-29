@@ -154,7 +154,7 @@ export default function Maintenance({ onDisable }) {
         {/* Footer */}
         <div className="text-center mt-8">
           <p className="text-blue-300 text-sm">
-            © 2025 KMS Technology - Expense Tracker 
+            © 2025 LCV Technology - Expense Tracker 
           </p>
           <p className="text-blue-400 text-xs mt-2">
             Cảm ơn bạn đã kiên nhẫn chờ đợi! 💙
