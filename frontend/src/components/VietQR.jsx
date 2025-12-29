@@ -35,7 +35,7 @@ export default function VietQR({ amount, description = '' }) {
           <path d="M11 4a1 1 0 10-2 0v1a1 1 0 002 0V4zM10 7a1 1 0 011 1v1h2a1 1 0 110 2h-3a1 1 0 01-1-1V8a1 1 0 011-1zM16 9a1 1 0 100 2 1 1 0 000-2zM9 13a1 1 0 011-1h1a1 1 0 110 2v2a1 1 0 11-2 0v-3zM16 13a1 1 0 00-1 1v1h-1a1 1 0 100 2h2a1 1 0 001-1v-2a1 1 0 00-1-1z" />
         </svg>
         <span className="hidden sm:inline">Mã QR chuyển khoản</span>
-        <span className="sm:hidden">QR</span>
+        <span className="sm:hidden">Mã QR chuyển khoản</span>
       </button>
 
       {/* Modal */}
