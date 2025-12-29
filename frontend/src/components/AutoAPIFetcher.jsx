@@ -123,6 +123,29 @@ export default function AutoAPIFetcher({ onInvoiceParsed }) {
       }
 
       if (data && (data.data || data.ecomOrderDetail2)) {
+        // Thông báo thành công
+        const successMsg = store === 'kingfoodmart' 
+          ? '✅ Lấy hóa đơn KingFoodMart thành công!' 
+          : '✅ Lấy hóa đơn Bách Hóa Xanh thành công!';
+        
+        // Tạo notification nhẹ nhàng
+        if (window.confirm) {
+          // Sử dụng timeout để không block UI
+          setTimeout(() => {
+            const notification = document.createElement('div');
+            notification.innerHTML = successMsg;
+            notification.className = 'fixed top-10 left-1/2 transform -translate-x-1/2 w-full  bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg font-medium z-50 transition-all duration-300';
+            document.body.appendChild(notification);
+            
+            // Tự động ẩn sau 3 giây
+            setTimeout(() => {
+              notification.style.opacity = '0';
+              notification.style.transform = 'translateY(-20px)';
+              setTimeout(() => notification.remove(), 300);
+            }, 3000);
+          }, 100);
+        }
+        
         onInvoiceParsed(JSON.stringify(data))
         setOrderCode('')
       } else {

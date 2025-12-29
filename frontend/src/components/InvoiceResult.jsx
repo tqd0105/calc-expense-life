@@ -82,7 +82,26 @@ export default function InvoiceResult({ invoice, weeks, onWeekSelect }) {
         {invoice.date && (
           <div className="flex justify-between items-center">
             <span className={`${colors.textMain} font-bold`}>Ngày mua:</span>
-            <span className="text-slate-800 font-medium">{invoice.date}</span>
+            <span className="text-slate-800 font-medium">
+              {(() => {
+                try {
+                  const date = new Date(invoice.date);
+                  // Kiểm tra nếu ngày hợp lệ
+                  if (isNaN(date.getTime())) {
+                    return invoice.date; // Trả về nguyên bản nếu không parse được
+                  }
+                  return date.toLocaleDateString('vi-VN', {
+                    year: 'numeric',
+                    month: '2-digit', 
+                    day: '2-digit',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                  });
+                } catch (e) {
+                  return invoice.date; // Fallback về original
+                }
+              })()}
+            </span>
           </div>
         )}
       </div>
