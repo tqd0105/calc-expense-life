@@ -74,8 +74,12 @@ export async function fetchBachHoaXanhAPI(orderCode, credentials) {
  */
 export async function fetchKingFoodMartAPI(orderCode, credentials = {}) {
   try {
+    // Sử dụng backend deployed trên Render
+    const backendUrl = 'https://calc-expense-life.onrender.com';
+    console.log(`🔗 Connecting to backend: ${backendUrl}`);
+    
     // Gọi qua backend proxy với cookie
-    const response = await fetch('http://localhost:5001/api/proxy/kingfoodmart', {
+    const response = await fetch(`${backendUrl}/api/proxy/kingfoodmart`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -93,7 +97,7 @@ export async function fetchKingFoodMartAPI(orderCode, credentials = {}) {
     return await response.json()
   } catch (error) {
     console.error('KFM API Error:', error)
-    throw new Error(`Không thể lấy dữ liệu: ${error.message}. Đảm bảo backend đang chạy (npm start trong /backend)`)
+    throw new Error(`Không thể lấy dữ liệu từ KingFoodMart: ${error.message}. Kiểm tra kết nối mạng.`)
   }
 }
 
