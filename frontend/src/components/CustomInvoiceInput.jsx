@@ -130,7 +130,7 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
                   value={item.name}
                   onChange={(e) => updateItem(index, 'name', e.target.value)}
                   placeholder="Tên sản phẩm"
-                  className="flex-1 px-3 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
+                  className="flex-1 px-2 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500 focus:border-violet-500"
                 />
                 <input
                   type="number"
@@ -138,22 +138,22 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
                   onChange={(e) => updateItem(index, 'quantity', e.target.value)}
                   placeholder="SL"
                   min="1"
-                  className="w-14 px-2 py-2 border-2 border-gray-300 rounded-lg text-sm text-center focus:ring-2 focus:ring-violet-500"
+                  className="w-12 px-2 py-2 border-2 border-gray-300 rounded-lg text-sm text-center focus:ring-2 focus:ring-violet-500"
                 />
                 <input
                   type="number"
                   value={item.price}
                   onChange={(e) => updateItem(index, 'price', e.target.value)}
                   placeholder="Giá"
-                  className="w-24 px-2 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500"
+                  className="w-20 px-2 py-2 border-2 border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-violet-500"
                 />
                 <button
                   type="button"
                   onClick={() => removeItem(index)}
-                  className="p-2 text-red-500 hover:bg-red-50 rounded-lg"
+                  className=" text-red-500 hover:bg-red-50 rounded-lg"
                   disabled={items.length === 1}
                 >
-                  🗑️
+                  <img src="assets/icons/delete.png" width="25" height="25" alt="Xóa" />
                 </button>
               </div>
             ))}

@@ -8,7 +8,7 @@ const app = express()
 const PORT = process.env.PORT || 5001
 
 // IP Whitelist từ .env (phân cách bằng dấu phẩy)
-const ALLOWED_IPS = process.env.ALLOWED_IPS 
+const ALLOWED_IPS = process.env.ALLOWED_IPS
   ? process.env.ALLOWED_IPS.split(',').map(ip => ip.trim())
   : []
 
@@ -23,19 +23,19 @@ function getClientIP(req) {
   if (forwarded) {
     return forwarded.split(',')[0].trim()
   }
-  
+
   // Check other common headers
   const realIP = req.headers['x-real-ip']
   if (realIP) return realIP
-  
+
   // Fallback to direct connection IP
   const remoteIP = req.socket.remoteAddress || req.connection.remoteAddress
-  
+
   // Convert IPv6 localhost to IPv4
   if (remoteIP === '::1' || remoteIP === '::ffff:127.0.0.1') {
     return '127.0.0.1'
   }
-  
+
   // Remove IPv6 prefix if present
   return remoteIP?.replace('::ffff:', '') || 'unknown'
 }
@@ -43,29 +43,29 @@ function getClientIP(req) {
 // Middleware: Check IP whitelist
 function checkIPWhitelist(req, res, next) {
   const clientIP = getClientIP(req)
-  
+
   // Allow localhost for development
   if (clientIP === '127.0.0.1' || clientIP === 'localhost') {
     return next()
   }
-  
+
   // Check if IP is in whitelist
   if (ALLOWED_IPS.length > 0 && ALLOWED_IPS.includes(clientIP)) {
     return next()
   }
-  
+
   // Check if IP is in local network range
-  const isLocalNetwork = ALLOWED_LOCAL_RANGES.some(range => 
+  const isLocalNetwork = ALLOWED_LOCAL_RANGES.some(range =>
     clientIP.startsWith(range)
   )
-  
+
   if (isLocalNetwork) {
     return next()
   }
-  
+
   // IP not allowed
   console.warn(`❌ Access denied from IP: ${clientIP}`)
-  return res.status(403).json({ 
+  return res.status(403).json({
     error: 'Access denied',
     message: 'This application can only be accessed from the room WiFi',
     clientIP: clientIP
@@ -81,7 +81,7 @@ app.use((req, res, next) => {
   // TEMPORARILY DISABLE IP WHITELIST FOR DEBUGGING
   console.log(`[${new Date().toISOString()}] Request from ${getClientIP(req)} to ${req.path}`);
   return next();
-  
+
   // Original IP check logic (commented out)
   /*
   if (req.path === '/api/health' || req.path === '/api/proxy/kingfoodmart') {
@@ -99,8 +99,8 @@ app.get('/api/health', (req, res) => {
 // Check IP access (for frontend to verify before loading app)
 app.get('/api/check-access', (req, res) => {
   const clientIP = getClientIP(req)
-  res.json({ 
-    allowed: true, 
+  res.json({
+    allowed: true,
     clientIP: clientIP,
     message: 'Access granted from room WiFi'
   })
@@ -110,9 +110,9 @@ app.get('/api/check-access', (req, res) => {
 app.post('/api/proxy/kingfoodmart', async (req, res) => {
   try {
     console.log(`[${new Date().toISOString()}] KingFoodMart proxy request:`, JSON.stringify(req.body, null, 2));
-    
+
     const { orderCode, cookie } = req.body
-    
+
     if (!orderCode) {
       console.log('❌ Missing orderCode in request');
       return res.status(400).json({ error: 'orderCode is required' })
@@ -149,7 +149,7 @@ app.post('/api/proxy/kingfoodmart', async (req, res) => {
       'Content-Type': 'application/json',
       'Accept': '*/*'
     }
-    
+
     // Add cookie if provided
     if (cookie && cookie.trim()) {
       console.log(`🍪 Using cookie: ${cookie.substring(0, 50)}...`);

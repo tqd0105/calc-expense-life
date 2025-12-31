@@ -3,6 +3,10 @@ import { useState } from 'react'
 export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
   const [showForm, setShowForm] = useState(false)
   const [editingWeek, setEditingWeek] = useState(null)
+  const [showPasswordModal, setShowPasswordModal] = useState(false)
+  const [pendingWeek, setPendingWeek] = useState(null)
+  const [passwordInput, setPasswordInput] = useState('')
+  const [passwordError, setPasswordError] = useState('')
   const [formData, setFormData] = useState({
     name: '',
     startDate: '',
@@ -54,11 +58,11 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
   }
 
   const handleTogglePaid = (week) => {
-    const updatedWeek = {
-      ...week,
-      isPaid: !week.isPaid
-    }
-    onSaveWeek(updatedWeek)
+    // Mở modal xác thực mật khẩu
+    setPendingWeek(week)
+    setShowPasswordModal(true)
+    setPasswordInput('')
+    setPasswordError('')
   }
 
   return (
@@ -197,9 +201,9 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
                         ? 'bg-orange-500 hover:bg-orange-600 text-white'
                         : 'bg-emerald-500 hover:bg-emerald-600 text-white'
                     }`}
-                    title={week.isPaid ? 'Đánh dấu chưa trả' : 'Đánh dấu đã trả'}
+                    title={week.isPaid ? 'Đánh dấu chưa trả (Cần mật khẩu)' : 'Đánh dấu đã trả (Cần mật khẩu)'}
                   >
-                    {week.isPaid ? '↩ Chưa' : '✓ Đã trả'}
+                    {week.isPaid ? '↩ Chưa trả' : '✓ Đã trả'}
                   </button>
                   <button
                     onClick={() => handleEdit(week)}
@@ -221,6 +225,163 @@ export default function WeekManager({ weeks, onSaveWeek, onDeleteWeek }) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      
+      {/* Modal xác thực mật khẩu */}
+      {showPasswordModal && pendingWeek && (
+        <div 
+          className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4"
+          onClick={() => {
+            setShowPasswordModal(false)
+            setPendingWeek(null)
+            setPasswordInput('')
+            setPasswordError('')
+          }}
+        >
+          <div 
+            className="bg-white rounded-2xl max-w-md w-full shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+            style={{
+              animation: 'slideUp 0.3s ease-out'
+            }}
+          >
+            {/* Header */}
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white p-6 rounded-t-2xl">
+              <div className="text-center">
+                <div className="text-4xl mb-3">💳</div>
+                <h3 className="text-2xl font-bold mb-2">
+                  Xác nhận thanh toán
+                </h3>
+                <p className="text-purple-100 text-sm">
+                  {pendingWeek.isPaid 
+                    ? `Đánh dấu "${pendingWeek.name}" chưa thanh toán?`
+                    : `Đánh dấu "${pendingWeek.name}" đã thanh toán?`
+                  }
+                </p>
+              </div>
+            </div>
+
+            {/* Body */}
+            <div className="p-6">
+              <div className="mb-4">
+                <label className="block text-sm font-bold text-gray-700 mb-2">
+                  🔑 Nhập mật khẩu xác thực:
+                </label>
+                <input
+                  type="password"
+                  value={passwordInput}
+                  onChange={(e) => {
+                    setPasswordInput(e.target.value)
+                    setPasswordError('') // Clear error when typing
+                  }}
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      handlePasswordSubmit()
+                    }
+                  }}
+                  className={`w-full px-4 py-3 border-2 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg font-mono text-center tracking-wider ${
+                    passwordError 
+                      ? 'border-rose-400 bg-rose-50' 
+                      : 'border-gray-300'
+                  }`}
+                  placeholder="Nhập mật khẩu..."
+                  autoFocus
+                />
+                {passwordError && (
+                  <p className="mt-2 text-rose-600 text-sm font-medium flex items-center gap-2">
+                    <span>❌</span> {passwordError}
+                  </p>
+                )}
+              </div>
+
+              {/* Status Preview */}
+              <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 border border-purple-200">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Trạng thái hiện tại:</p>
+                    <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-bold ${
+                      pendingWeek.isPaid 
+                        ? 'bg-emerald-200 text-emerald-800' 
+                        : 'bg-rose-200 text-rose-800'
+                    }`}>
+                      {pendingWeek.isPaid ? '✓ Đã trả' : '⏳ Chưa trả'}
+                    </span>
+                  </div>
+                  <div className="text-3xl">→</div>
+                  <div>
+                    <p className="text-sm font-medium text-gray-700">Sẽ thành:</p>
+                    <span className={`inline-block mt-1 px-3 py-1 rounded-full text-sm font-bold ${
+                      !pendingWeek.isPaid 
+                        ? 'bg-emerald-200 text-emerald-800' 
+                        : 'bg-rose-200 text-rose-800'
+                    }`}>
+                      {!pendingWeek.isPaid ? '✓ Đã trả' : '⏳ Chưa trả'}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Security note */}
+              {/* <div className="bg-blue-50 border-2 border-blue-200 rounded-xl p-4">
+                <div className="flex items-center gap-2">
+                  <span className="text-blue-600 text-lg">🛡️</span>
+                  <div>
+                    <p className="text-sm font-bold text-blue-800">Bảo mật cao</p>
+                    <p className="text-xs text-blue-600 mt-1">
+                      Chỉ admin mới có thể thay đổi trạng thái thanh toán
+                    </p>
+                  </div>
+                </div>
+              </div> */}
+            </div>
+
+            {/* Footer */}
+            <div className="bg-gray-50 p-4 rounded-b-2xl border-t flex gap-3">
+              <button
+                onClick={() => {
+                  setShowPasswordModal(false)
+                  setPendingWeek(null)
+                  setPasswordInput('')
+                  setPasswordError('')
+                }}
+                className="flex-1 py-3 bg-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-400 transition-colors"
+              >
+                Hủy
+              </button>
+              <button
+                onClick={() => {
+                  // Kiểm tra mật khẩu
+                  if (passwordInput.trim() === 'tqd0105') {
+                    // Mật khẩu đúng - thực hiện thay đổi
+                    const updatedWeek = {
+                      ...pendingWeek,
+                      isPaid: !pendingWeek.isPaid
+                    }
+                    onSaveWeek(updatedWeek)
+                    
+                    // Đóng modal
+                    setShowPasswordModal(false)
+                    setPendingWeek(null)
+                    setPasswordInput('')
+                    setPasswordError('')
+                  } else {
+                    // Mật khẩu sai
+                    setPasswordError('Mật khẩu không chính xác!')
+                    setPasswordInput('')
+                  }
+                }}
+                disabled={!passwordInput.trim()}
+                className={`flex-1 py-3 rounded-lg font-semibold transition-all shadow-lg ${
+                  passwordInput.trim()
+                    ? 'bg-gradient-to-r from-purple-600 to-pink-600 text-white hover:from-purple-700 hover:to-pink-700'
+                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                }`}
+              >
+                {pendingWeek.isPaid ? '↩ Đánh dấu chưa trả' : '✓ Đánh dấu đã trả'}
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>

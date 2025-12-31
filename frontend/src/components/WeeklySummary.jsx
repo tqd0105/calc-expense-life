@@ -233,13 +233,13 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                             ▶
                           </span>
                           <div>
-                            <div className="flex items-center gap-2">
-                              <h3 className={`text-xl font-bold ${
-                                week.isPaid ? 'text-emerald-900' : 'text-rose-900'
+                            <div className="flex flex-col items-start gap-2">
+                              <h3 className={`text-lg font-bold ${
+                                week.isPaid ? 'text-emerald-900' : 'text-red-600'
                               }`}>
                                 {week.weekRange}
                               </h3>
-                              <span className={`text-xs px-3 py-1 rounded-full font-bold ${
+                              <span className={`text-sm px-2 py-1 rounded-full font-bold ${
                                 week.isPaid 
                                   ? 'bg-emerald-200 text-emerald-800' 
                                   : 'bg-rose-200 text-rose-800'
@@ -314,11 +314,14 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                     className="flex justify-between items-center p-3 bg-white rounded-xl text-sm hover:shadow-md transition-all border-2 border-slate-200"
                   >
                     <div className="flex-1">
-                      <div className="font-bold text-slate-800">
-                        {invoice.orderCode}
+                      <div className=" text-lg text-black font-bold mt-1">
+                        {invoice.store} 
                       </div>
-                      <div className="text-xs text-slate-600 font-medium mt-1">
-                        {invoice.store} • {new Date(invoice.date || invoice.orderDate).toLocaleDateString('vi-VN')}
+                      <div className="text-xs text-gray-400">
+                        {new Date(invoice.date || invoice.orderDate).toLocaleDateString('vi-VN')}
+                      </div>
+                      <div className="font-medium text-gray-500">
+                        {invoice.orderCode}
                       </div>
                     </div>
                     <div className="text-right flex items-center gap-3">
@@ -330,6 +333,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                           ÷{peopleCount} = {formatCurrency(invoice.total / peopleCount)}
                         </div>
                       </div>
+                      <div className='flex flex-col'>
                       <button
                         onClick={() => setSelectedInvoice(invoice)}
                         className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1 rounded-lg transition-colors font-medium"
@@ -368,6 +372,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                           <path fillRule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clipRule="evenodd" />
                         </svg>
                       </button>
+                      </div>
                     </div>
                   </div>
                 ))}
@@ -748,13 +753,13 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
             <div className="sticky top-0 bg-gradient-to-r from-blue-600 to-indigo-600 text-white p-6 rounded-t-2xl">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="text-2xl font-bold mb-2">
-                    {selectedInvoice.orderCode}
-                  </h3>
-                  <p className="text-blue-100">
+                  <p className="text-xl font-bold">
                     {selectedInvoice.store}
                   </p>
-                  <p className="text-sm text-blue-200 mt-1">
+                  <h3 className="font-medium text-md text-gray-300">
+                    {selectedInvoice.orderCode}
+                  </h3>
+                  <p className="text-sm text-blue-200 ">
                     {new Date(selectedInvoice.date || selectedInvoice.orderDate).toLocaleString('vi-VN')}
                   </p>
                 </div>
