@@ -311,32 +311,38 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                               {week.invoices.map((invoice, idx) => (
                   <div 
                     key={idx}
-                    className="flex justify-between items-center p-3 bg-white rounded-xl text-sm hover:shadow-md transition-all border-2 border-slate-200"
+                    className="flex  justify-between items-center p-3 bg-white rounded-xl text-sm hover:shadow-md transition-all border-2 border-slate-200"
                   >
-                    <div className="flex-1">
-                      <div className=" text-lg text-black font-bold mt-1">
+                    <div>
+                    <div className="flex-1 ">
+                      <div className=" text-xl text-black font-bold mt-1">
                         {invoice.store} 
                       </div>
-                      <div className="text-xs text-gray-400">
+                      <div className="text-md text-gray-400">
                         {new Date(invoice.date || invoice.orderDate).toLocaleDateString('vi-VN')}
                       </div>
-                      <div className="font-medium text-gray-500">
+                      <div className=" font-medium text-gray-500">
                         {invoice.orderCode}
                       </div>
                     </div>
+                    {/* Kẻ đường ngang */}
+                    <div className="border-t border-gray-300 flex-1 my-1"></div>
                     <div className="text-right flex items-center gap-3">
-                      <div>
-                        <div className="font-bold text-slate-900">
+                      <div flex className="flex items-center gap-2">
+                        <div className="text-2xl font-bold text-slate-900">
                           {formatCurrency(invoice.total)}
                         </div>
-                        <div className="text-xs text-emerald-600 font-semibold">
+                        <div className="text-md text-emerald-600 font-semibold">
                           ÷{peopleCount} = {formatCurrency(invoice.total / peopleCount)}
                         </div>
                       </div>
-                      <div className='flex flex-col'>
+                      
+                    </div>
+                    </div>
+                    <div className='flex flex-col gap-1'>
                       <button
                         onClick={() => setSelectedInvoice(invoice)}
-                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-1 rounded-lg transition-colors font-medium"
+                        className="text-blue-500 hover:text-blue-700 hover:bg-blue-50 p-2 bg-gray-200 rounded-full transition-colors font-medium"
                         title="Xem chi tiết"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -352,7 +358,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                           setPasswordInput('')
                           setPasswordError('')
                         }}
-                        className="text-amber-500 hover:text-amber-700 hover:bg-amber-50 p-1 rounded-lg transition-colors font-medium"
+                        className="text-amber-500 hover:text-amber-700 hover:bg-amber-50 p-2 bg-gray-200 rounded-full transition-colors font-medium"
                         title="Chỉnh sửa đơn hàng (Cần mật khẩu)"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -365,7 +371,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                             onDeleteInvoice && onDeleteInvoice(invoice.id)
                           }
                         }}
-                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-1 rounded-lg transition-colors font-medium"
+                        className="text-rose-500 hover:text-rose-700 hover:bg-rose-50 p-2 bg-gray-200 rounded-full transition-colors font-medium"
                         title="Xóa đơn hàng"
                       >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -373,7 +379,6 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                         </svg>
                       </button>
                       </div>
-                    </div>
                   </div>
                 ))}
               </div>
