@@ -1,11 +1,23 @@
 import { useState } from 'react'
 
+// Helper function để format date cho input datetime-local
+const formatDateForInput = (date) => {
+  const d = new Date(date)
+  const year = d.getFullYear()
+  const month = String(d.getMonth() + 1).padStart(2, '0')
+  const day = String(d.getDate()).padStart(2, '0')
+  const hours = String(d.getHours()).padStart(2, '0')
+  const minutes = String(d.getMinutes()).padStart(2, '0')
+  return `${year}-${month}-${day}T${hours}:${minutes}`
+}
+
 export default function CustomInvoiceInput({ onInvoiceParsed }) {
   const [showForm, setShowForm] = useState(false)
   const [storeName, setStoreName] = useState('')
   const [items, setItems] = useState([{ name: '', price: '', quantity: 1 }])
   const [error, setError] = useState('')
   const [isNotSplit, setIsNotSplit] = useState(false)
+  const [invoiceDate, setInvoiceDate] = useState('')
 
   const addItem = () => {
     setItems([...items, { name: '', price: '', quantity: 1 }])
@@ -40,12 +52,15 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
     }
 
     // Create invoice object
+    // Nếu người dùng để trống ngày thì dùng ngày hiện tại
+    const selectedDate = invoiceDate ? new Date(invoiceDate).toISOString() : new Date().toISOString()
+    
     const invoice = {
       id: Date.now(),
       orderCode: `CUSTOM-${Date.now()}`, // Generate unique order code
       store: storeName.trim(),
-      date: new Date().toISOString(),
-      orderDate: new Date().toISOString(),
+      date: selectedDate,
+      orderDate: selectedDate,
       isNotSplit: isNotSplit, // Flag for full price, not split
       items: validItems.map(item => ({
         name: item.name.trim(),
@@ -64,6 +79,7 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
     setStoreName('')
     setItems([{ name: '', price: '', quantity: 1 }])
     setIsNotSplit(false)
+    setInvoiceDate('')
     setShowForm(false)
   }
 
@@ -115,6 +131,20 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
             value={storeName}
             onChange={(e) => setStoreName(e.target.value)}
             placeholder="VD: Cửa hàng ABC, Chợ, Siêu thị..."
+            className="input-field text-sm"
+          />
+        </div>
+
+        {/* Invoice Date */}
+        <div className="mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-1">
+            Ngày mua <span className="text-gray-400 text-xs">(để trống = ngày hiện tại)</span>
+          </label>
+          <input
+            type="datetime-local"
+            value={invoiceDate}
+            onChange={(e) => setInvoiceDate(e.target.value)}
+            max={formatDateForInput(new Date())}
             className="input-field text-sm"
           />
         </div>
