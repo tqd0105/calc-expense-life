@@ -22,14 +22,25 @@ export default function InvoiceHistory({ history, onViewHistory, onClearHistory 
           >
             <div className="flex justify-between items-center">
               <div>
-                <p className="font-semibold text-gray-800">{invoice.store}</p>
+                <div className="flex items-center gap-2">
+                  <p className="font-semibold text-gray-800">{invoice.store}</p>
+                  {invoice.isNotSplit && (
+                    <span className="px-2 py-1 bg-orange-200 text-red-600 text-sm font-bold rounded-lg ">
+                      💰 Không chia
+                    </span>
+                  )}
+                </div>
                 <p className="text-xs text-gray-600">
                   {new Date(invoice.date).toLocaleString('vi-VN')}
                 </p>
               </div>
               <div className="text-right">
                 <p className="font-bold text-gray-900">{invoice.total.toLocaleString('vi-VN')}₫</p>
-                <p className="text-sm text-green-600">Mỗi người: {(invoice.total / 2).toLocaleString('vi-VN')}₫</p>
+                {invoice.isNotSplit ? (
+                  <p className="text-sm text-orange-600 font-medium">Một người trả</p>
+                ) : (
+                  <p className="text-sm text-green-600">Mỗi người: {(invoice.total / 2).toLocaleString('vi-VN')}₫</p>
+                )}
               </div>
             </div>
           </div>

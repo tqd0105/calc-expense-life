@@ -5,6 +5,7 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
   const [storeName, setStoreName] = useState('')
   const [items, setItems] = useState([{ name: '', price: '', quantity: 1 }])
   const [error, setError] = useState('')
+  const [isNotSplit, setIsNotSplit] = useState(false)
 
   const addItem = () => {
     setItems([...items, { name: '', price: '', quantity: 1 }])
@@ -45,6 +46,7 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
       store: storeName.trim(),
       date: new Date().toISOString(),
       orderDate: new Date().toISOString(),
+      isNotSplit: isNotSplit, // Flag for full price, not split
       items: validItems.map(item => ({
         name: item.name.trim(),
         quantity: parseInt(item.quantity) || 1,
@@ -61,6 +63,7 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
     // Reset form
     setStoreName('')
     setItems([{ name: '', price: '', quantity: 1 }])
+    setIsNotSplit(false)
     setShowForm(false)
   }
 
@@ -166,6 +169,25 @@ export default function CustomInvoiceInput({ onInvoiceParsed }) {
           >
             <span>➕</span> Thêm sản phẩm
           </button>
+        </div>
+
+        {/* Not split option */}
+        <div className="mb-4">
+          <label className="flex items-center gap-3 p-3 bg-white rounded-xl border-2 border-orange-200 hover:border-orange-300 cursor-pointer transition-colors">
+            <input
+              type="checkbox"
+              checked={isNotSplit}
+              onChange={(e) => setIsNotSplit(e.target.checked)}
+              className="w-5 h-5 text-orange-600 bg-gray-100 border-gray-300 rounded focus:ring-orange-500 focus:ring-2"
+            />
+            <div className="flex-1">
+              <div className="flex items-center gap-2">
+                <span className="text-lg">💰</span>
+                <span className="font-semibold text-orange-700">Không chia tiền</span>
+              </div>
+              <span className="text-sm text-gray-600">Hóa đơn này thuộc về một người, không cần chia cho nhóm</span>
+            </div>
+          </label>
         </div>
 
         {/* Total preview */}

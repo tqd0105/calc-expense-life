@@ -108,6 +108,7 @@ export async function getInvoices() {
     total: parseFloat(inv.total),
     date: inv.date,
     weekId: inv.week_id,
+    isNotSplit: inv.is_not_split || false,
     items: inv.items,
     orderDate: inv.date
   }))
@@ -130,6 +131,7 @@ export async function saveInvoice(invoice) {
     total: invoice.total,
     date: invoice.date || new Date().toISOString(),
     week_id: invoice.weekId || null,
+    is_not_split: invoice.isNotSplit || false,
     items: invoice.items,
     user_id: user.id
   }
@@ -149,6 +151,7 @@ export async function saveInvoice(invoice) {
     total: parseFloat(data.total),
     date: data.date,
     weekId: data.week_id,
+    isNotSplit: data.is_not_split || false,
     items: data.items,
     orderDate: data.date
   }
@@ -172,6 +175,7 @@ export async function updateInvoice(invoiceId, updates) {
   if (updates.total !== undefined) dbUpdates.total = updates.total
   if (updates.items !== undefined) dbUpdates.items = updates.items
   if (updates.date !== undefined) dbUpdates.date = updates.date
+  if (updates.isNotSplit !== undefined) dbUpdates.is_not_split = updates.isNotSplit
 
   const { error } = await supabase
     .from('invoices')

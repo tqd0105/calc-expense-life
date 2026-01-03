@@ -98,6 +98,37 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
     return new Date(year, parseInt(month) - 1, parseInt(day))
   }
 
+  // Calculate total amount each person should pay for a week
+  // Takes into account invoices marked as "not split"
+  function calculatePersonAmount(invoices, peopleCount) {
+    if (!invoices || invoices.length === 0) return 0
+    
+    let totalSplitAmount = 0
+    let totalNotSplitAmount = 0
+    
+    invoices.forEach(invoice => {
+      if (invoice.isNotSplit) {
+        totalNotSplitAmount += invoice.total
+      } else {
+        totalSplitAmount += invoice.total
+      }
+    })
+    
+    // Split invoices are divided by people count
+    // Not split invoices are paid fully by one person (so divided by people count for average)
+    return (totalSplitAmount / peopleCount) + (totalNotSplitAmount / peopleCount)
+  }
+
+  // Calculate how much the group should split (excluding not-split invoices)
+  function calculateSplitAmount(invoices, peopleCount) {
+    if (!invoices || invoices.length === 0) return 0
+    
+    const splitInvoices = invoices.filter(invoice => !invoice.isNotSplit)
+    const totalSplitAmount = splitInvoices.reduce((sum, invoice) => sum + invoice.total, 0)
+    
+    return totalSplitAmount / peopleCount
+  }
+
   // Format currency
   function formatCurrency(amount) {
     return new Intl.NumberFormat('vi-VN', {
@@ -250,7 +281,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                             <p className={`text-sm font-medium mt-1 ${
                               week.isPaid ? 'text-emerald-600' : 'text-rose-600'
                             }`}>
-                              {week.invoices.length} đơn • Mỗi người: {formatCurrency(week.total / peopleCount)}
+                              {week.invoices.length} đơn • Mỗi người: {formatCurrency(calculateSplitAmount(week.invoices, peopleCount))}
                             </p>
                           </div>
                         </div>
@@ -282,7 +313,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                               <div className={`text-2xl font-bold ${
                                 week.isPaid ? 'text-teal-600' : 'text-orange-600'
                               }`}>
-                                {formatCurrency(week.total / peopleCount)}
+                                {formatCurrency(calculateSplitAmount(week.invoices, peopleCount))}
                               </div>
                             </div>
                             
@@ -316,7 +347,14 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                     <div>
                     <div className="flex-1 ">
                       <div className=" text-xl text-black font-bold mt-1">
-                        {invoice.store} 
+                        <div className="flex items-center gap-2">
+                          {invoice.store}
+                          {invoice.isNotSplit && (
+                            <span className="px-2 py-1 bg-orange-200 text-red-600 text-sm font-bold rounded-lg shadow-lg">
+                              💰 Không chia
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="text-md text-gray-400">
                         {new Date(invoice.date || invoice.orderDate).toLocaleDateString('vi-VN')}
@@ -332,8 +370,10 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                         <div className="text-2xl font-bold text-slate-900">
                           {formatCurrency(invoice.total)}
                         </div>
-                        <div className="text-md text-emerald-600 font-semibold">
-                          ÷{peopleCount} = {formatCurrency(invoice.total / peopleCount)}
+                        <div className={`text-md  ${
+                          invoice.isNotSplit ? 'text-red-600 font-bold ' : 'text-emerald-600 font-semibold'
+                        }`}>
+                          ÷{peopleCount} = {invoice.isNotSplit ? 'Không chia' : formatCurrency(invoice.total / peopleCount)}
                         </div>
                       </div>
                       
@@ -459,7 +499,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
              <img src="/assets/icons/people.png" className="w-5 sm:w-6" alt="Icon" /> MỖI NGƯỜI PHẢI TRẢ
             </div>
             <div className="text-2xl sm:text-4xl font-black text-amber-700 mb-1">
-              {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / peopleCount)}
+              {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + calculateSplitAmount(week.invoices, peopleCount), 0))}
             </div>
             <div className="text-xs text-amber-600 font-medium">
               {weeklySummary.filter(w => !w.isPaid).length > 0 
@@ -470,7 +510,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
             {weeklySummary.filter(w => !w.isPaid).length > 0 && (
               <div className="mt-2 sm:mt-3">
                 <VietQR 
-                  amount={weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / peopleCount}
+                  amount={weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + calculateSplitAmount(week.invoices, peopleCount), 0)}
                   description="Tien chi tieu chung"
                 />
               </div>
@@ -515,7 +555,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                   Còn {weeklySummary.filter(w => !w.isPaid).length} tuần chưa thanh toán
                 </p>
                 <p className="text-xs text-rose-600 mt-1">
-                  Mỗi người cần trả: {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + week.total, 0) / peopleCount)}
+                  Mỗi người cần trả: {formatCurrency(weeklySummary.filter(w => !w.isPaid).reduce((sum, week) => sum + calculateSplitAmount(week.invoices, peopleCount), 0))}
                 </p>
               </div>
             </div>
@@ -793,7 +833,7 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
                   <div className="text-right">
                     <p className="text-sm text-teal-700 font-medium">Mỗi người trả</p>
                     <p className="text-2xl font-bold text-teal-600">
-                      {formatCurrency(selectedInvoice.total / peopleCount)}
+                      {selectedInvoice.isNotSplit ? 'Không chia tiền' : formatCurrency(selectedInvoice.total / peopleCount)}
                     </p>
                   </div>
                 </div>

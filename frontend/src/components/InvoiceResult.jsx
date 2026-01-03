@@ -137,15 +137,28 @@ export default function InvoiceResult({ invoice, weeks, onWeekSelect }) {
           <span className={`text-3xl font-bold ${colors.textSecondary}`}>{invoice.total.toLocaleString('vi-VN')}₫</span>
         </div>
         
-        <div className={`p-6 bg-gradient-to-br ${colors.gradientSplit} rounded-2xl text-white shadow-xl hover:shadow-2xl transition-shadow`}>
-          <div className="flex justify-between items-center">
-            <span className="text-xl font-bold">Mỗi người trả:</span>
-            <span className="text-4xl font-bold">{splitAmount.toLocaleString('vi-VN')}₫</span>
+        {/* Show split or not split based on isNotSplit flag */}
+        {invoice.isNotSplit ? (
+          <div className="p-6 bg-gradient-to-br from-orange-500 via-yellow-500 to-orange-600 rounded-2xl text-white shadow-xl hover:shadow-2xl transition-shadow">
+            <div className="flex items-center justify-center mb-2">
+              <span className="text-2xl mr-2">💰</span>
+              <span className="text-xl font-bold">Không chia tiền</span>
+            </div>
+            <p className="text-sm text-white/90 text-center font-medium">
+              Hóa đơn này thuộc về một người, không cần chia cho nhóm
+            </p>
           </div>
-          <p className="text-sm text-white/90 mt-3 text-center font-medium">
-            (Đã chia đôi tự động 50/50)
-          </p>
-        </div>
+        ) : (
+          <div className={`p-6 bg-gradient-to-br ${colors.gradientSplit} rounded-2xl text-white shadow-xl hover:shadow-2xl transition-shadow`}>
+            <div className="flex justify-between items-center">
+              <span className="text-xl font-bold">Mỗi người trả:</span>
+              <span className="text-4xl font-bold">{splitAmount.toLocaleString('vi-VN')}₫</span>
+            </div>
+            <p className="text-sm text-white/90 mt-3 text-center font-medium">
+              (Đã chia đôi tự động 50/50)
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Ghi chú */}
