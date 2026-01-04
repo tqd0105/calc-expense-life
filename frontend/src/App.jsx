@@ -125,8 +125,8 @@ function App() {
     // Add id and metadata immediately
     const invoiceWithId = { 
       ...parsed, 
-      id: Date.now(), 
-      date: new Date().toISOString(), 
+      id: parsed.id || Date.now(), 
+      date: parsed.date || new Date().toISOString(), 
       weekId: null 
     }
     
@@ -174,12 +174,25 @@ function App() {
   }
 
   const handleClearHistory = async () => {
-    if (!confirm('Xóa toàn bộ lịch sử?')) return
+    // Chỉ xóa các hóa đơn CHƯA gán vào tuần nào
+    const unassignedInvoices = history.filter(inv => !inv.weekId)
+    const assignedInvoices = history.filter(inv => inv.weekId)
+    
+    if (unassignedInvoices.length === 0) {
+      alert('Không có hóa đơn nào trong lịch sử để xóa!')
+      return
+    }
+    
+    if (!confirm(`Xóa ${unassignedInvoices.length} hóa đơn trong lịch sử?`)) return
     
     try {
-      // Delete all invoices
-      await Promise.all(history.map(inv => dbDeleteInvoice(inv.id)))
-      setHistory([])
+      await Promise.all(unassignedInvoices.map(inv => dbDeleteInvoice(inv.id)))
+      setHistory(assignedInvoices)
+      
+      // Clear current invoice nếu nó bị xóa
+      if (currentInvoice && !currentInvoice.weekId) {
+        setCurrentInvoice(null)
+      }
     } catch (error) {
       console.error('Error clearing history:', error)
       alert('Lỗi xóa lịch sử: ' + error.message)

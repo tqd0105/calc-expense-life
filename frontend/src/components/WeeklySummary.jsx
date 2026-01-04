@@ -132,14 +132,20 @@ export default function WeeklySummary({ history, weeks, onEditInvoice, onDeleteI
     return (totalSplitAmount / peopleCount) + (totalNotSplitAmount / peopleCount)
   }
 
-  // Calculate how much the group should split (excluding not-split invoices)
+  // Calculate how much each person should pay
+  // Split invoices: divided by people count
+  // Not split invoices: full amount (one person pays all)
   function calculateSplitAmount(invoices, peopleCount) {
     if (!invoices || invoices.length === 0) return 0
     
     const splitInvoices = invoices.filter(invoice => !invoice.isNotSplit)
-    const totalSplitAmount = splitInvoices.reduce((sum, invoice) => sum + invoice.total, 0)
+    const notSplitInvoices = invoices.filter(invoice => invoice.isNotSplit)
     
-    return totalSplitAmount / peopleCount
+    const totalSplitAmount = splitInvoices.reduce((sum, invoice) => sum + invoice.total, 0)
+    const totalNotSplitAmount = notSplitInvoices.reduce((sum, invoice) => sum + invoice.total, 0)
+    
+    // Mỗi người trả = (tổng chia ÷ số người) + tổng không chia
+    return (totalSplitAmount / peopleCount) + totalNotSplitAmount
   }
 
   // Format currency
